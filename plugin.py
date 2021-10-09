@@ -53,43 +53,64 @@ class GridWindow(Gtk.Window):
         super(GridWindow, self).__init__(title="Grid Example")
         self.set_default_size(500, 300)
 
-        grid = Gtk.Grid()
-        self.add(grid)
+        self.grid = Gtk.Grid()
+        self.add(self.grid)
 
-        search_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
-        grid.attach(search_replace_box, 0, 0, 1, 1)
+        self.search_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+        self.grid.attach(self.search_replace_box, 0, 0, 1, 1)
 
-        search_label = Gtk.Label(label="")
-        search_window = Gtk.ScrolledWindow()
-        search_window.set_hexpand(True)
-        search_window.set_vexpand(True)
+        self.search_box = Gtk.Box(spacing = 10)
+        self.search_label = Gtk.Label(label = "Search")
+        self.search_box.pack_start(self.search_label, False, False, 9)
 
-        search_textview = Gtk.TextView()
-        search_window.add(search_textview)
-        search_replace_box.pack_start(search_window, True, True, 0)
+        self.search_window = Gtk.ScrolledWindow()
+        self.search_window.set_hexpand(True)
+        self.search_window.set_vexpand(True)
 
-        replace_window = Gtk.ScrolledWindow()
-        replace_window.set_hexpand(True)
-        replace_window.set_vexpand(True)
+        self.search_textview = Gtk.TextView()
+        self.search_textview.set_accepts_tab(True)
+        self.search_textview.set_editable(True)
+        self.search_window.add(self.search_textview)
+        self.search_box.pack_start(self.search_window, True, True, 0)
 
-        replace_textview = Gtk.TextView()
-        replace_window.add(replace_textview)
-        search_replace_box.pack_start(replace_window, True, True, 0)
+        self.search_replace_box.pack_start(self.search_box, True, True, 0)
 
-        button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+        self.replace_box = Gtk.Box(spacing = 10)
+        self.replace_label = Gtk.Label(label = "Replace")
+        self.replace_box.pack_start(self.replace_label, False, False, 5)
 
-        button1 = Gtk.Button(label="Search")
-        button1.connect("clicked", self.on_button1_clicked)
-        button_box.pack_start(button1, False, False, 0)
+        self.replace_window = Gtk.ScrolledWindow()
+        self.replace_window.set_hexpand(True)
+        self.replace_window.set_vexpand(True)
+
+        self.replace_textview = Gtk.TextView()
+        self.replace_textview.set_accepts_tab(True)
+        self.replace_textview.set_editable(True)
+        self.replace_window.add(self.replace_textview)
+        self.replace_box.pack_start(self.replace_window, True, True, 0)
+
+        self.search_replace_box.pack_start(self.replace_box, True, True, 0)
+
+        self.button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+
+        self.button1 = Gtk.Button(label="Search")
+        self.button1.connect("clicked", self.on_button1_clicked)
         
-        button2 = Gtk.Button(label="Replace")
-        button2.connect("clicked", self.on_button2_clicked)
-        button_box.pack_start(button2, False, False, 0)
-        grid.attach_next_to(button_box, search_replace_box, Gtk.PositionType.RIGHT, 1, 2)
+        self.button2 = Gtk.Button(label="Replace")
+        self.button2.connect("clicked", self.on_button2_clicked)
+
+        self.button_box.pack_end(self.button2, False, False, 0)
+        self.button_box.pack_end(self.button1, False, False, 0)
+
+        self.grid.attach_next_to(self.button_box, self.search_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
     
     def on_button1_clicked(self, widget):
-        GPS.Console().write("Search\n")
+        buffer = self.search_textview.get_buffer()
+        start, end = buffer.get_bounds()
+        text = buffer.get_text(start, end, True)
+        text += "\n"
+        GPS.Console().write(text)
 
     def on_button2_clicked(self, widget):
         GPS.Console().write("Replace\n")

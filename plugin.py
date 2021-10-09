@@ -42,6 +42,7 @@ class MyWindow(Gtk.Window):
         self.button2.connect("clicked", self.on_button2_clicked)
         self.box.pack_start(self.button2, True, True, 0)
 
+
     def on_button1_clicked(self, widget):
         GPS.Console().write("Hello\n")
 
@@ -86,10 +87,18 @@ class GridWindow(Gtk.Window):
         button2.connect("clicked", self.on_button2_clicked)
         button_box.pack_start(button2, False, False, 0)
         grid.attach_next_to(button_box, search_replace_box, Gtk.PositionType.RIGHT, 1, 2)
-
     
     def on_button1_clicked(self, widget):
-        GPS.Console().write("Search\n")
+        #GPS.Console().write("Search\n")
+
+        file = GPS.current_context().file()
+
+        line_list = []
+        with open(str(file), "r") as f:
+           for line in f:
+               line_list.append(line.rstrip("\n"))
+
+        GPS.Console().write(line_list[8])
 
     def on_button2_clicked(self, widget):
         GPS.Console().write("Replace\n")

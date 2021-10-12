@@ -17,14 +17,15 @@ class SearchResult:
         """Constructor method
         """
         self.diagnostics = []
+        self.locations = []
         self.rule = rule
         self.filename = filename
-        self.file_tree = self.analyze_file()
+        self.file_tree = self.analyze()
         self.fragment = fragment
-        self.fragment_tree = self.analyze_fragment()
-        self.found = self.is_subtree(self.file_tree.root, self.fragment_tree.root)
-        if not self.found:
-            self.location = None
+        self.fragment_tree = self.analyze(fragment=True)
+        self.last_location = None
+        self.is_subtree(self.file_tree.root, self.fragment_tree.root)
+        self.found = bool(self.locations)
 
     def are_identical(self, root1, root2) -> bool:
         """
@@ -44,7 +45,7 @@ class SearchResult:
         for i in range(len(root1.children)):
             if not self.are_identical(root1.children[i], root2.children[i]):
                 return False
-        self.location = root1.sloc_range
+        self.last_location = root1.sloc_range
         return True
 
     def is_subtree(self, tree, subtree) -> bool:
@@ -64,33 +65,23 @@ class SearchResult:
             return True
         for child in tree.children:
             if self.is_subtree(child, subtree):
-                return True
+                self.locations.append(self.last_location)
         return False
 
-    def analyze_fragment(self) -> lal.AnalysisUnit:
+    def analyze(self, fragment: Optional[bool] = False) -> lal.AnalysisUnit:
         """
         Creates a tree from text fragment
-        :return: An analysis unit containing the tree
-        :rtype: class:'libadalang.AnalysisUnit'
-        """
-        context = lal.AnalysisContext()
-        unit = context.get_from_buffer("", self.fragment, rule=self.rule)
-        if unit.diagnostics:
-            for d in unit.diagnostics:
-                print(d)
-            self.diagnostics.extend(unit.diagnostics)
-            raise ValueError
-        else:
-            return unit
 
-    def analyze_file(self) -> lal.AnalysisUnit:
-        """
-        Creates a tree from file
+        :param fragment: whether the analyzed input is a fragment
+        :type fragment: bool, optional
         :return: An analysis unit containing the tree
         :rtype: class:'libadalang.AnalysisUnit'
         """
         context = lal.AnalysisContext()
-        unit = context.get_from_file(self.filename)
+        if fragment:
+            unit = context.get_from_buffer("", self.fragment, rule=self.rule)
+        else:
+            unit = context.get_from_file(self.filename)
         if unit.diagnostics:
             for d in unit.diagnostics:
                 print(d)
@@ -101,11 +92,11 @@ class SearchResult:
 
 
 '''
-res = SearchResult("hello.adb", "Put_Line(\"Hello, World!\")", rule=lal.GrammarRule.expr_rule)
+res = SearchResult("calc.adb", "Put(\"test1\")", rule=lal.GrammarRule.expr_rule)
 print(res.found)
-print(res.location)
+print(res.locations)
 
-res = SearchResult("hello.adb", "Put_Line(\"Bye, World!\")", rule=lal.GrammarRule.expr_rule)
+res = SearchResult("calc.adb", "Put(\"test2\")", rule=lal.GrammarRule.expr_rule)
 print(res.found)
-print(res.location)
+print(res.locations)
 '''

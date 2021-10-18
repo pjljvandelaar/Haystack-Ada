@@ -59,7 +59,7 @@ class SearchResult:
         """
         if subtree is None:
             return True
-        if tree is None:
+        if tree is None or not subtree.children:
             return False
         if self.are_identical(tree, subtree):
             return True
@@ -89,14 +89,3 @@ class SearchResult:
             raise ValueError
         else:
             return unit
-
-
-'''
-res = SearchResult("calc.adb", "Put(\"test1\")", rule=lal.GrammarRule.expr_rule)
-print(res.found)
-print(res.locations)
-
-res = SearchResult("calc.adb", "Put(\"test2\")", rule=lal.GrammarRule.expr_rule)
-print(res.found)
-print(res.locations)
-'''

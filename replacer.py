@@ -1,6 +1,7 @@
 import libadalang as lal
 from typing import Optional, Union
 from searchresult import SearchResult
+import ReplaceMain as replacer
 
 
 class Replacer:
@@ -27,10 +28,28 @@ class Replacer:
     def replace(self) -> None:
         for i in self.indexes[::-1]:
             print(self.locations[i])
-            # TODO implement replacing the file at self.locations[i]
-            pass
+            linestart = int(self.locations[i][0][0])
+            linend = int(self.locations[i][1][0])
+            # print(linestart,linend)
+            # Equals line:
+            if(linestart == linend):
+                startChar = int(self.locations[i][0][1])
+                endChar = int(self.locations[i][1][1])
+                replacer.replace_line(self.filename,linestart,startChar,"I Test Replacer!",endChar)
+            # No equals line (ex: for loop...)
+            elif(linestart != linend):
+                startChar = int(self.locations[i][0][1])
+                replacer.replace_body(self.filename,linestart,linend,["Put_Line(firstLine);\n","Put_Line(secondLine);\n","Put_Line(thirdLine);\n"],startChar)
+        print("Out of the loop")
 
 
-res = SearchResult("put_test.adb", "Put(Arr(I).X)", rule=lal.GrammarRule.expr_rule)
+res = SearchResult("hello.adb", "Put(Arr(I).X)", rule=lal.GrammarRule.expr_rule)
+# res = SearchResult("hello.adb", "\"Hello World\"", rule=lal.GrammarRule.expr_rule)
+'''res = SearchResult("hello.adb", "if The_Month > The_Time then\n"
+                                        "The_Month := The_Time;\n"
+                                        "end if;",
+                              rule=lal.GrammarRule.if_stmt_rule)
+'''
 test = Replacer(res.filename, res.locations, "test")
 test.replace()
+

@@ -42,6 +42,9 @@ class SearchResult:
             return False
         if not root1.children and not root2.children and root1.text != root2.text:
             return False
+        if root1.children and root2.children and root1.text.lower() == root2.text.lower():
+            self.last_location = root1.sloc_range
+            return True
         for i in range(len(root1.children)):
             if not self.are_identical(root1.children[i], root2.children[i]):
                 return False

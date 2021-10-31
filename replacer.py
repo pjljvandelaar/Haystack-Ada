@@ -5,7 +5,8 @@ from location import Location
 
 
 class Replacer:
-    def __init__(self, filename: str, slocs: list, replacement: str, indexes: Optional[Union[list, None]] = None, output: Optional[Union[str, None]] = None):
+    def __init__(self, filename: str, slocs: list, replacement: str, indexes: Optional[Union[list, None]] = None,
+                 output: Optional[Union[str, None]] = None):
         """Constructor method
         """
         self.slocs = slocs
@@ -33,8 +34,8 @@ class Replacer:
             start_char = self.locations[j].start_char
             end_char = self.locations[j].end_char
             if i == 0:
-                parts.append(lines[:start_line-1])
-                parts[-1].append(lines[start_line-1][:start_char-1])
+                parts.append(lines[:start_line - 1])
+                parts[-1].append(lines[start_line - 1][:start_char - 1])
             else:
                 previous_end_line = self.locations[self.indexes[i - 1]].end_line
                 previous_end_char = self.locations[self.indexes[i - 1]].end_char
@@ -42,9 +43,10 @@ class Replacer:
                 parts[-1].extend(lines[previous_end_line:start_line - 1])
                 parts[-1].append(lines[start_line - 1][:start_char - 1])
             if i == len(self.indexes) - 1:
-                parts.append([lines[end_line-1][end_char - 1:]])
+                parts.append([lines[end_line - 1][end_char - 1:]])
                 parts[-1].extend(lines[end_line:])
         print(*parts, sep='\n')
+
         output_str = ""
         for idx, part in enumerate(parts):
             for line in part:
@@ -57,7 +59,8 @@ class Replacer:
             outfile.write(output_str)
 
 
-res = SearchResult("hello.adb", "Put_Line (\"Hello, World!\")",
+if __name__ == "__main__":
+    res = SearchResult("hello.adb", "Put_Line (\"Hello, World!\")",
                        rule=lal.GrammarRule.expr_rule)
-test = Replacer(res.filename, res.locations, "test!", output="replacer_test.adb")
-test.replace()
+    test = Replacer(res.filename, res.locations, "test!", indexes=[1, 0], output="replacer_test.adb")
+    test.replace()

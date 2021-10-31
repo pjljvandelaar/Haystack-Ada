@@ -52,23 +52,22 @@ class TestSearchResult(unittest.TestCase):
         self.assertEqual(str(obj1.locations), "[<SlocRange 38:7-38:50>]")
 
     # Test of Case (in)sensitive stuff:
-    def test_expr(self):
-        hello1 = SearchResult("hello.adb", "put(arr(ii).x)", rule=lal.GrammarRule.expr_rule)
+    def test_lowercase_insensitive(self):
+        hello1 = SearchResult("test_programs/hello.adb", "put(arr(ii).x)", rule=lal.GrammarRule.expr_rule, case_insensitive=True)
         self.assertEqual(hello1.found, True)
         self.assertEqual(str(hello1.locations), "[<SlocRange 6:4-6:18>]")
 
-    def test_expr_multiple(self):
-        hello2 = SearchResult("hello.adb", "put(arr(i).x)", rule=lal.GrammarRule.expr_rule)
-        self.assertEqual(hello2.found, True)
-        self.assertEqual(str(hello2.locations), "[<SlocRange 7:4-7:17>, <SlocRange 8:4-8:17>, <SlocRange 10:7-10:20>, <SlocRange 11:7-11:20>, <SlocRange 12:7-12:20>]")
+    def test_lowercase_sensitive(self):
+        hello2 = SearchResult("test_programs/hello.adb", "put(arr(i).x)", rule=lal.GrammarRule.expr_rule)
+        self.assertEqual(hello2.found, False)
+        self.assertEqual(str(hello2.locations), "[]")
 
     def test_if_stmt(self):
-        hello3 = SearchResult("hello.adb", "IF THE_MONTH > The_Time then\n"
+        hello3 = SearchResult("test_programs/hello.adb", "IF THE_MONTH > The_Time then\n"
                                             "The_Month := THE_TIME;\n"
-                                            "end IF;", rule=lal.GrammarRule.if_stmt_rule)
+                                            "end IF;", rule=lal.GrammarRule.if_stmt_rule, case_insensitive=True)
         self.assertEqual(hello3.found, True)
-        self.assertEqual(str(hello3.locations), "[<SlocRange 16:4-18:11>]")
+        self.assertEqual(str(hello3.locations), "[<SlocRange 13:4-15:11>]")
 
     #TODO : Real for loop
 
-    

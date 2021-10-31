@@ -13,7 +13,7 @@ class SearchResult:
     :type rule: class:'libadalang.GrammarRule', optional
     """
 
-    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule):
+    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule, case_insensitive: Optional[bool] = False):
         """Constructor method
         """
         self.diagnostics = []
@@ -24,6 +24,7 @@ class SearchResult:
         self.fragment = fragment
         self.fragment_tree = self.analyze(fragment=True)
         self.last_location = None
+        self.case_insensitive = case_insensitive
         self.is_subtree(self.file_tree.root, self.fragment_tree.root)
         self.found = bool(self.locations)
 
@@ -42,7 +43,8 @@ class SearchResult:
             return False
         if not root1.children and not root2.children and root1.text != root2.text:
             return False
-        if root1.children and root2.children and root1.text.lower() == root2.text.lower():
+        text_comparison = root1.text == root2.text if not self.case_insensitive else root1.text.lower() == root2.text.lower()
+        if root1.children and root2.children and text_comparison:
             self.last_location = root1.sloc_range
             return True
         for i in range(len(root1.children)):

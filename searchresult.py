@@ -13,7 +13,8 @@ class SearchResult:
     :type rule: class:'libadalang.GrammarRule', optional
     """
 
-    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule, case_insensitive: Optional[bool] = False):
+    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule,
+                 case_insensitive: Optional[bool] = False):
         """Constructor method
         """
         self.diagnostics = []
@@ -84,13 +85,17 @@ class SearchResult:
         """
         context = lal.AnalysisContext()
         if fragment:
-            unit = context.get_from_buffer("", self.fragment, rule=self.rule)
+            rules = lal.GrammarRule._c_to_py
+            rules.insert(0, rules.pop(rules.index(str(self.rule))))
+            for rule in rules:
+                unit = context.get_from_buffer("", self.fragment, rule=getattr(lal.GrammarRule, rule))
+                # FIXME doesn't want to work without specifying rule in the call
+                if not unit.diagnostics:
+                    return unit
         else:
             unit = context.get_from_file(self.filename)
-        if unit.diagnostics:
-            for d in unit.diagnostics:
-                print(d)
-            self.diagnostics.extend(unit.diagnostics)
-            raise ValueError
-        else:
-            return unit
+            if not unit.diagnostics:
+                return unit
+        for d in unit.diagnostics:
+            print(d)
+        raise ValueError

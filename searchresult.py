@@ -83,16 +83,18 @@ class SearchResult:
         :return: An analysis unit containing the tree
         :rtype: class:'libadalang.AnalysisUnit'
         """
-        context = lal.AnalysisContext()
         if fragment:
             rules = lal.GrammarRule._c_to_py
             rules.insert(0, rules.pop(rules.index(str(self.rule))))
-            for rule in rules:
+            for idx, rule in enumerate(rules):
+                if idx != 0:
+                    print(rules[idx - 1], "failed, retrying with", rule)
+                context = lal.AnalysisContext()
                 unit = context.get_from_buffer("", self.fragment, rule=getattr(lal.GrammarRule, rule))
-                # FIXME doesn't want to work without specifying rule in the call
                 if not unit.diagnostics:
                     return unit
         else:
+            context = lal.AnalysisContext()
             unit = context.get_from_file(self.filename)
             if not unit.diagnostics:
                 return unit

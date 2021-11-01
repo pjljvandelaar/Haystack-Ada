@@ -1,6 +1,8 @@
 import GPS
 import gs_utils
-import re
+import searchresult as sr
+import libadalang as lal
+import replacer as r
 
 from gi.repository import Gtk, GLib, Gdk, GObject
 
@@ -13,9 +15,17 @@ def plugin():
     win = GPS.MDI.get("FindAST")
     win.float()
 
+def on_file_changed(hook, file):
+    ed = GPS.EditorBuffer.get(file, force = 1)
+    return 1
+
+GPS.Hook("file_changed_on_disk").add(on_file_changed)
+
 class Grid(Gtk.Grid):
     def __init__(self):
         super(Grid, self).__init__()
+        self.locations = []
+        self.path = None
 
         self.find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
         self.attach(self.find_replace_box, 0, 0, 1, 1)
@@ -78,12 +88,17 @@ class Grid(Gtk.Grid):
         buffer = self.find_textview.get_buffer()
         start, end = buffer.get_bounds()
         text = buffer.get_text(start, end, True)
-        text += "\n"
-        GPS.Console().write(text)
+        self.path = GPS.EditorBuffer.get().file().path
+        search = sr.SearchResult(self.path, text, lal.GrammarRule.expr_rule)
+        console = GPS.Console("Find AST")
+        console.write(str(search.locations))
+        self.locations = search.locations
+
+
 
     def on_replace_clicked(self, widget):
         buffer = self.replace_textview.get_buffer()
         start, end = buffer.get_bounds()
         text = buffer.get_text(start, end, True)
-        text += "\n"
-        GPS.Console().write(text)
+        replacer = r.Replacer(self.path, self.locations, text)
+        replacer.replace()

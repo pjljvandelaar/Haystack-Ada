@@ -1,8 +1,9 @@
 import GPS
 import gs_utils
-import searchresult as sr
+from searchresult import SearchResult
 import libadalang as lal
-import replacer as r
+from replacer import Replacer
+from location import Location
 
 from gi.repository import Gtk, GLib, Gdk, GObject
 
@@ -25,6 +26,7 @@ class Grid(Gtk.Grid):
     def __init__(self):
         super(Grid, self).__init__()
         self.locations = []
+        self.selected_location = -1
         self.path = None
 
         self.find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
@@ -72,33 +74,87 @@ class Grid(Gtk.Grid):
 
         self.button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
 
-        self.findButton = Gtk.Button(label="Find All")
-        self.findButton.connect("clicked", self.on_find_clicked)
-        
-        self.replaceButton = Gtk.Button(label="Replace All")
-        self.replaceButton.connect("clicked", self.on_replace_clicked)
+        self.find_button = Gtk.Button(label="Find All")
+        self.find_button.connect("clicked", self.on_find_clicked)
 
-        self.button_box.pack_end(self.replaceButton, False, False, 0)
-        self.button_box.pack_end(self.findButton, False, False, 0)
+        self.next_button = Gtk.Button(label="Next")
+        self.next_button.connect("clicked", self.on_next_clicked)
+
+        self.replace_next_button = Gtk.Button(label="Replace next")
+        self.replace_next_button.connect("clicked", self.on_replace_next_clicked)
+        
+        self.replace_button = Gtk.Button(label="Replace All")
+        self.replace_button.connect("clicked", self.on_replace_clicked)
+
+        self.button_box.pack_end(self.replace_button, False, False, 0)
+        self.button_box.pack_end(self.replace_next_button, False, False, 0)
+        self.button_box.pack_end(self.next_button, False, False, 0)
+        self.button_box.pack_end(self.find_button, False, False, 0)
 
         self.attach_next_to(self.button_box, self.find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
     
     def on_find_clicked(self, widget):
+        # read search buffer
         buffer = self.find_textview.get_buffer()
         start, end = buffer.get_bounds()
         text = buffer.get_text(start, end, True)
-        self.path = GPS.EditorBuffer.get().file().path
-        search = sr.SearchResult(self.path, text, lal.GrammarRule.expr_rule)
-        console = GPS.Console("Find AST")
-        console.write(str(search.locations))
-        self.locations = search.locations
 
+        # get path of currently opened file
+        editor_buffer = GPS.EditorBuffer.get()
+        self.path = editor_buffer.file().path
+
+        # search for matches in current file
+        search = SearchResult(self.path, text, lal.GrammarRule.expr_rule)
+        self.locations = search.locations
+        console = GPS.Console("Find AST")
+        console.write(str(self.locations))
+
+        # select first match
+        self.on_next_clicked(widget)
+
+    def on_next_clicked(self, widget):
+        editor_buffer = GPS.EditorBuffer.get()
+        if len(self.locations) > 0:
+            self.selected_location = (self.selected_location + 1) % len(self.locations)
+            location = self.locations[self.selected_location]
+            start, end = get_editor_locations(editor_buffer, location)
+            editor_buffer.select(start, end)
+            editor_buffer.current_view().center(start)
+
+    def on_replace_next_clicked(self, widget):
+        # Read replace buffer
+        buffer = self.replace_textview.get_buffer()
+        text_start, text_end = buffer.get_bounds()
+        text = buffer.get_text(text_start, text_end, True)
+
+        # Replace currently selected text, search again
+        editor_buffer = GPS.EditorBuffer.get()
+        start, end = get_editor_locations(editor_buffer, self.locations[self.selected_location])
+        end = end.forward_char(-1)
+        del self.locations[self.selected_location]
+        self.selected_location = self.selected_location - 1
+        editor_buffer.delete(start, end)
+        editor_buffer.insert(start, text)
+        editor_buffer.save(False)
+        self.on_find_clicked(widget)
 
 
     def on_replace_clicked(self, widget):
+        # Read replace buffer
         buffer = self.replace_textview.get_buffer()
         start, end = buffer.get_bounds()
         text = buffer.get_text(start, end, True)
-        replacer = r.Replacer(self.path, self.locations, text)
+
+        # Start replacement
+        replacer = Replacer(self.path, self.locations, text)
         replacer.replace()
+
+        # Remove found matches
+        self.locations = []
+        self.selected_location = -1
+    
+def get_editor_locations(editor_buffer, location):
+    start = editor_buffer.at(location.start_line, location.start_char)
+    end = editor_buffer.at(location.end_line, location.end_char)
+    return start, end

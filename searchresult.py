@@ -13,7 +13,8 @@ class SearchResult:
     :type rule: class:'libadalang.GrammarRule', optional
     """
 
-    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule):
+    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule,
+                 case_insensitive: Optional[bool] = False):
         """Constructor method
         """
         self.diagnostics = []
@@ -24,6 +25,7 @@ class SearchResult:
         self.fragment = fragment
         self.fragment_tree = self.analyze(fragment=True)
         self.last_location = None
+        self.case_insensitive = case_insensitive
         self.is_subtree(self.file_tree.root, self.fragment_tree.root)
         self.found = bool(self.locations)
 
@@ -42,6 +44,10 @@ class SearchResult:
             return False
         if not root1.children and not root2.children and root1.text != root2.text:
             return False
+        text_comparison = root1.text == root2.text if not self.case_insensitive else root1.text.lower() == root2.text.lower()
+        if root1.children and root2.children and text_comparison:
+            self.last_location = root1.sloc_range
+            return True
         for i in range(len(root1.children)):
             if not self.are_identical(root1.children[i], root2.children[i]):
                 return False
@@ -77,15 +83,21 @@ class SearchResult:
         :return: An analysis unit containing the tree
         :rtype: class:'libadalang.AnalysisUnit'
         """
-        context = lal.AnalysisContext()
         if fragment:
-            unit = context.get_from_buffer("", self.fragment, rule=self.rule)
+            rules = lal.GrammarRule._c_to_py
+            rules.insert(0, rules.pop(rules.index(str(self.rule))))
+            for idx, rule in enumerate(rules):
+                if idx != 0:
+                    print(rules[idx - 1], "failed, retrying with", rule)
+                context = lal.AnalysisContext()
+                unit = context.get_from_buffer("", self.fragment, rule=getattr(lal.GrammarRule, rule))
+                if not unit.diagnostics:
+                    return unit
         else:
+            context = lal.AnalysisContext()
             unit = context.get_from_file(self.filename)
-        if unit.diagnostics:
-            for d in unit.diagnostics:
-                print(d)
-            self.diagnostics.extend(unit.diagnostics)
-            raise ValueError
-        else:
-            return unit
+            if not unit.diagnostics:
+                return unit
+        for d in unit.diagnostics:
+            print(d)
+        raise ValueError

@@ -1,6 +1,6 @@
 import libadalang as lal
 from typing import Optional
-
+from location import Location
 
 class SearchResult:
     """Class used for searching a text in a file and storing its location.
@@ -71,7 +71,7 @@ class SearchResult:
             return True
         for child in tree.children:
             if self.is_subtree(child, subtree):
-                self.locations.append(self.last_location)
+                self.locations.append(self.parse_sloc(self.last_location))
         return False
 
     def analyze(self, fragment: Optional[bool] = False) -> lal.AnalysisUnit:
@@ -99,3 +99,9 @@ class SearchResult:
         for d in unit.diagnostics:
             print(d)
         raise ValueError
+
+    def parse_sloc(self, sloc):
+        range_ = str(sloc).split("-")
+        [line1, pos1], [line2, pos2] = range_[0].split(":"), range_[1].split(":")
+        return Location(int(line1), int(line2), int(pos1), int(pos2))
+

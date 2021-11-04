@@ -29,69 +29,71 @@ class Grid(Gtk.Grid):
         self.selected_location = -1
         self.path = None
 
-        self.find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
-        self.attach(self.find_replace_box, 0, 0, 1, 1)
+        find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+        self.attach(find_replace_box, 0, 0, 1, 1)
 
-        self.find_box = Gtk.Box(spacing = 10)
-        self.find_box_frame = Gtk.Frame()
-        self.find_box_frame.add(self.find_box)
+        find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
+        for rule in sorted(lal.GrammarRule._c_to_py):
+            find_parse_rule_combo.append_text(rule)
+        find_parse_rule_combo.set_wrap_width(4)
+        
+        find_replace_box.pack_start(find_parse_rule_combo, False, False, 0)
 
-        self.find_window = Gtk.ScrolledWindow()
-        self.find_window.set_hexpand(True)
-        self.find_window.set_vexpand(True)
-        self.find_window.set_shadow_type(Gtk.ShadowType.IN)
-        self.find_window_frame = Gtk.Frame(label="Find")
-        self.find_window_frame.add(self.find_window)
-        self.find_window_frame.set_shadow_type(Gtk.ShadowType.IN)
+        find_box = Gtk.Box(spacing = 10)
+
+        find_window = Gtk.ScrolledWindow()
+        find_window.set_hexpand(True)
+        find_window.set_vexpand(True)
+        find_window.set_shadow_type(Gtk.ShadowType.OUT)
+        find_window_frame = Gtk.Frame(label="Find")
+        find_window_frame.add(find_window)
 
         self.find_textview = Gtk.TextView()
         self.find_textview.set_accepts_tab(True)
         self.find_textview.set_editable(True)
-        self.find_window.add(self.find_textview)
-        self.find_box.pack_start(self.find_window_frame, True, True, 0)
+        find_window.add(self.find_textview)
+        find_box.pack_start(find_window_frame, True, True, 0)
 
-        self.find_replace_box.pack_start(self.find_box_frame, True, True, 0)
+        find_replace_box.pack_start(find_box, True, True, 0)
 
-        self.replace_box = Gtk.Box(spacing = 10)
-        self.replace_box_frame = Gtk.Frame()
-        self.replace_box_frame.add(self.replace_box)
+        replace_box = Gtk.Box(spacing = 10)
 
-        self.replace_window = Gtk.ScrolledWindow()
-        self.replace_window.set_hexpand(True)
-        self.replace_window.set_vexpand(True)
-        self.replace_window.set_shadow_type(Gtk.ShadowType.IN)
-        self.replace_window_frame = Gtk.Frame(label="Replace")
-        self.replace_window_frame.add(self.replace_window)
-        self.replace_window_frame.set_shadow_type(Gtk.ShadowType.IN)
+        replace_window = Gtk.ScrolledWindow()
+        replace_window.set_hexpand(True)
+        replace_window.set_vexpand(True)
+        replace_window.set_shadow_type(Gtk.ShadowType.OUT)
+        replace_window_frame = Gtk.Frame(label="Replace")
+        replace_window_frame.add(replace_window)
 
         self.replace_textview = Gtk.TextView()
         self.replace_textview.set_accepts_tab(True)
         self.replace_textview.set_editable(True)
-        self.replace_window.add(self.replace_textview)
-        self.replace_box.pack_start(self.replace_window_frame, True, True, 0)
+        replace_window.add(self.replace_textview)
+        replace_box.pack_start(replace_window_frame, True, True, 0)
 
-        self.find_replace_box.pack_start(self.replace_box_frame, True, True, 0)
+        find_replace_box.pack_start(replace_box, True, True, 0)
 
-        self.button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+        button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
 
-        self.find_button = Gtk.Button(label="Find All")
-        self.find_button.connect("clicked", self.on_find_clicked)
+        find_button = Gtk.Button(label="Find All")
+        find_button.connect("clicked", self.on_find_clicked)
 
-        self.next_button = Gtk.Button(label="Next")
-        self.next_button.connect("clicked", self.on_next_clicked)
+        next_button = Gtk.Button(label="Next")
+        next_button.connect("clicked", self.on_next_clicked)
 
-        self.replace_next_button = Gtk.Button(label="Replace next")
-        self.replace_next_button.connect("clicked", self.on_replace_next_clicked)
+        replace_next_button = Gtk.Button(label="Replace next")
+        replace_next_button.connect("clicked", self.on_replace_next_clicked)
         
-        self.replace_button = Gtk.Button(label="Replace All")
-        self.replace_button.connect("clicked", self.on_replace_clicked)
+        replace_button = Gtk.Button(label="Replace All")
+        replace_button.connect("clicked", self.on_replace_clicked)
 
-        self.button_box.pack_end(self.replace_button, False, False, 0)
-        self.button_box.pack_end(self.replace_next_button, False, False, 0)
-        self.button_box.pack_end(self.next_button, False, False, 0)
-        self.button_box.pack_end(self.find_button, False, False, 0)
+        # We add the buttons in reverse order, from the end to the front so that they're nicely arranged from the bottom of the window upwards
+        button_box.pack_end(replace_button, False, False, 0)
+        button_box.pack_end(replace_next_button, False, False, 0)
+        button_box.pack_end(next_button, False, False, 0)
+        button_box.pack_end(find_button, False, False, 0)
 
-        self.attach_next_to(self.button_box, self.find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
+        self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
     
     def on_find_clicked(self, widget):
@@ -105,7 +107,7 @@ class Grid(Gtk.Grid):
         self.path = editor_buffer.file().path
 
         # search for matches in current file
-        search = SearchResult(self.path, text, lal.GrammarRule.expr_rule)
+        search = SearchResult(self.path, text)
         self.locations = search.locations
         console = GPS.Console("Find AST")
         console.write(str(self.locations))

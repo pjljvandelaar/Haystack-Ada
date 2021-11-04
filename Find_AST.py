@@ -32,12 +32,12 @@ class Grid(Gtk.Grid):
         find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
         self.attach(find_replace_box, 0, 0, 1, 1)
 
-        find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
+        self.find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
         for rule in sorted(lal.GrammarRule._c_to_py):
-            find_parse_rule_combo.append_text(rule)
-        find_parse_rule_combo.set_wrap_width(4)
+            self.find_parse_rule_combo.append_text(rule)
+        self.find_parse_rule_combo.set_wrap_width(4)
         
-        find_replace_box.pack_start(find_parse_rule_combo, False, False, 0)
+        find_replace_box.pack_start(self.find_parse_rule_combo, False, False, 0)
 
         find_box = Gtk.Box(spacing = 10)
 
@@ -106,8 +106,15 @@ class Grid(Gtk.Grid):
         editor_buffer = GPS.EditorBuffer.get()
         self.path = editor_buffer.file().path
 
+        # Get selected parse rule from combo box or default_grammar_rule if none was entered
+        selected_find_rule = self.find_parse_rule_combo.get_active_text()
+        if selected_find_rule != '':
+            parse_rule = getattr(lal.GrammarRule, selected_find_rule)
+        else:
+            parse_rule = lal.default_grammar_rule
+
         # search for matches in current file
-        search = SearchResult(self.path, text)
+        search = SearchResult(self.path, text, parse_rule)
         self.locations = search.locations
         console = GPS.Console("Find AST")
         console.write(str(self.locations))
@@ -130,15 +137,12 @@ class Grid(Gtk.Grid):
         text_start, text_end = buffer.get_bounds()
         text = buffer.get_text(text_start, text_end, True)
 
-        # Replace currently selected text, search again
-        editor_buffer = GPS.EditorBuffer.get()
-        start, end = get_editor_locations(editor_buffer, self.locations[self.selected_location])
-        end = end.forward_char(-1)
-        del self.locations[self.selected_location]
-        self.selected_location = self.selected_location - 1
-        editor_buffer.delete(start, end)
-        editor_buffer.insert(start, text)
-        editor_buffer.save(False)
+        # Replace currently selected text, save, search again
+        #replacer = Replacer(self.path, self.locations, text, [self.selected_location])
+        #replacer.replace()
+        #self.selected_location = -1
+        self.gps_replace([self.locations[self.selected_location]], text)
+        self.selected_location -= 1
         self.on_find_clicked(widget)
 
 
@@ -149,14 +153,27 @@ class Grid(Gtk.Grid):
         text = buffer.get_text(start, end, True)
 
         # Start replacement
-        replacer = Replacer(self.path, self.locations, text)
-        replacer.replace()
+        #replacer = Replacer(self.path, self.locations, text)
+        #replacer.replace()
+        self.gps_replace(self.locations, text)
 
         # Remove found matches
         self.locations = []
         self.selected_location = -1
+
+    def gps_replace(self, locations, replacement):
+        editor_buffer = GPS.EditorBuffer.get()
+        for location in locations[::-1]:
+            start, end = get_editor_locations(editor_buffer, location)
+            end = end.forward_char(-1)
+            self.locations.remove(location)
+            editor_buffer.delete(start, end)
+            editor_buffer.insert(start, replacement)
+        editor_buffer.save(False)
     
 def get_editor_locations(editor_buffer, location):
     start = editor_buffer.at(location.start_line, location.start_char)
     end = editor_buffer.at(location.end_line, location.end_char)
     return start, end
+
+       

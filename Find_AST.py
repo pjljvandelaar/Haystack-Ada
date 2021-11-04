@@ -140,9 +140,6 @@ class Grid(Gtk.Grid):
         text = buffer.get_text(text_start, text_end, True)
 
         # Replace currently selected text, save, search again
-        #replacer = Replacer(self.path, self.locations, text, [self.selected_location])
-        #replacer.replace()
-        #self.selected_location = -1
         self.gps_replace([self.locations[self.selected_location]], text)
         self.selected_location -= 1
         self.on_find_clicked(widget)
@@ -155,8 +152,6 @@ class Grid(Gtk.Grid):
         text = buffer.get_text(start, end, True)
 
         # Start replacement
-        #replacer = Replacer(self.path, self.locations, text)
-        #replacer.replace()
         self.gps_replace(self.locations, text)
 
         # Remove found matches

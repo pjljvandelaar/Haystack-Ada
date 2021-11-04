@@ -87,7 +87,9 @@ class Grid(Gtk.Grid):
         replace_button = Gtk.Button(label="Replace All")
         replace_button.connect("clicked", self.on_replace_clicked)
 
-        # We add the buttons in reverse order, from the end to the front so that they're nicely arranged from the bottom of the window upwards
+        self.case_insensitive_button = Gtk.CheckButton(label="Case insensitive")
+
+        button_box.pack_start(self.case_insensitive_button, False, False, 0)
         button_box.pack_end(replace_button, False, False, 0)
         button_box.pack_end(replace_next_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
@@ -114,7 +116,7 @@ class Grid(Gtk.Grid):
             parse_rule = lal.default_grammar_rule
 
         # search for matches in current file
-        search = SearchResult(self.path, text, parse_rule)
+        search = SearchResult(self.path, text, parse_rule, self.case_insensitive_button.get_active())
         self.locations = search.locations
         console = GPS.Console("Find AST")
         console.write(str(self.locations))

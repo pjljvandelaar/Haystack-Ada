@@ -34,12 +34,17 @@ class Grid(Gtk.Grid):
         self.attach(find_replace_box, 0, 0, 1, 1)
 
         # create dropdown menu and fill it with all possible grammar rules
+        parse_rule_box = Gtk.Box()
+        parse_rule_label = Gtk.Label(label = "Search query parse rule:")
         self.find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
         for rule in sorted(lal.GrammarRule._c_to_py):
             self.find_parse_rule_combo.append_text(rule)
         self.find_parse_rule_combo.set_wrap_width(4)
+
+        parse_rule_box.pack_start(parse_rule_label, False, False, 0)
+        parse_rule_box.pack_start(self.find_parse_rule_combo, False, False, 0)
         
-        find_replace_box.pack_start(self.find_parse_rule_combo, False, False, 0)
+        find_replace_box.pack_start(parse_rule_box, False, False, 0)
 
         # Create text area for the search query and add it to the window
         find_window = Gtk.ScrolledWindow()

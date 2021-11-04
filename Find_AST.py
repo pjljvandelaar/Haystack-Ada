@@ -29,9 +29,11 @@ class Grid(Gtk.Grid):
         self.selected_location = -1
         self.path = None
 
+        # Create vertical box to contain the dropdown menu and query boxes
         find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
         self.attach(find_replace_box, 0, 0, 1, 1)
 
+        # create dropdown menu and fill it with all possible grammar rules
         self.find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
         for rule in sorted(lal.GrammarRule._c_to_py):
             self.find_parse_rule_combo.append_text(rule)
@@ -39,8 +41,7 @@ class Grid(Gtk.Grid):
         
         find_replace_box.pack_start(self.find_parse_rule_combo, False, False, 0)
 
-        find_box = Gtk.Box(spacing = 10)
-
+        # Create text area for the search query and add it to the window
         find_window = Gtk.ScrolledWindow()
         find_window.set_hexpand(True)
         find_window.set_vexpand(True)
@@ -52,12 +53,9 @@ class Grid(Gtk.Grid):
         self.find_textview.set_accepts_tab(True)
         self.find_textview.set_editable(True)
         find_window.add(self.find_textview)
-        find_box.pack_start(find_window_frame, True, True, 0)
+        find_replace_box.pack_start(find_window_frame, True, True, 0)
 
-        find_replace_box.pack_start(find_box, True, True, 0)
-
-        replace_box = Gtk.Box(spacing = 10)
-
+        # Create text area for the replace query and add it to the window
         replace_window = Gtk.ScrolledWindow()
         replace_window.set_hexpand(True)
         replace_window.set_vexpand(True)
@@ -69,12 +67,13 @@ class Grid(Gtk.Grid):
         self.replace_textview.set_accepts_tab(True)
         self.replace_textview.set_editable(True)
         replace_window.add(self.replace_textview)
-        replace_box.pack_start(replace_window_frame, True, True, 0)
+        find_replace_box.pack_start(replace_window_frame, True, True, 0)
 
-        find_replace_box.pack_start(replace_box, True, True, 0)
-
+        # Create vertical box containing all buttons
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
+        self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
+        # Create all buttons and add them to the button box
         find_button = Gtk.Button(label="Find All")
         find_button.connect("clicked", self.on_find_clicked)
 
@@ -94,8 +93,6 @@ class Grid(Gtk.Grid):
         button_box.pack_end(replace_next_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
         button_box.pack_end(find_button, False, False, 0)
-
-        self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
     
     def on_find_clicked(self, widget):

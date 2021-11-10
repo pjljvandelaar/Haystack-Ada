@@ -1,41 +1,53 @@
+"""
+This file creates adds Haystack to GNAT studio,
+defines its GUI and links that to all of Haystack's functionalities
+"""
+from enum import Enum
+import libadalang as lal # type: ignore
 import GPS
 import gs_utils
 from searchresult import SearchResult
-import libadalang as lal
 from replacer import Replacer
 from location import Location
 
-from gi.repository import Gtk, GLib, Gdk, GObject
+from gi.repository import Gtk, GLib, Gdk, GObject # type: ignore
 
 @gs_utils.interactive(menu="/Find/Find AST")
 def plugin():
+    """Creates the Find window when you click the Find AST button in the Find menu."""
     win = Grid()
     win.show_all()
-    GPS.MDI.add(win, "FindAST", "FindAST",
-                flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT)
+    GPS.MDI.add(win, "FindAST", "FindAST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT)
     win = GPS.MDI.get("FindAST")
     win.float()
 
 def on_file_changed(hook, file):
-    ed = GPS.EditorBuffer.get(file, force = 1)
+    """Reloads the editor when a file is changed on disk."""
+    GPS.EditorBuffer.get(file, force = 1)
     return 1
 
 GPS.Hook("file_changed_on_disk").add(on_file_changed)
 
+class SearchContext(Enum):
+    """Enum containing all contexts in which you can search for ASTs."""
+    CURRENT_FILE = "Current file"
+    CURRENT_PROJECT = "Files from current project"
+
 class Grid(Gtk.Grid):
+    """The Find window"""
     def __init__(self):
+        """Builds the entire main GUI."""
         super(Grid, self).__init__()
-        self.locations = []
+        self.locations = {}
         self.selected_location = -1
-        self.path = None
 
         # Create vertical box to contain the dropdown menu and query boxes
         find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
         self.attach(find_replace_box, 0, 0, 1, 1)
 
-        # create dropdown menu and fill it with all possible grammar rules
+        # create grammar rule dropdown menu
         parse_rule_box = Gtk.Box()
-        parse_rule_label = Gtk.Label(label = "Search query parse rule:")
+        parse_rule_label = Gtk.Label(label = "Search query parse rule: ")
         self.find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
         for rule in sorted(lal.GrammarRule._c_to_py):
             self.find_parse_rule_combo.append_text(rule)
@@ -74,6 +86,19 @@ class Grid(Gtk.Grid):
         replace_window.add(self.replace_textview)
         find_replace_box.pack_start(replace_window_frame, True, True, 0)
 
+        # Create search location dropdown menu
+        search_context_box = Gtk.Box()
+        search_context_label = Gtk.Label(label = "Where ")
+        self.search_context_combo = Gtk.ComboBoxText.new_with_entry()
+        for context in SearchContext:
+            self.search_context_combo.append_text(context.value)
+        self.search_context_combo.set_active(0)
+
+        search_context_box.pack_start(search_context_label, False, False, 0)
+        search_context_box.pack_start(self.search_context_combo, False, False, 0)
+        
+        find_replace_box.pack_start(search_context_box, False, False, 0)
+
         # Create vertical box containing all buttons
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing = 10)
         self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
@@ -89,7 +114,7 @@ class Grid(Gtk.Grid):
         replace_next_button.connect("clicked", self.on_replace_next_clicked)
         
         replace_button = Gtk.Button(label="Replace All")
-        replace_button.connect("clicked", self.on_replace_clicked)
+        replace_button.connect("clicked", self.on_replace_all_clicked)
 
         self.case_insensitive_button = Gtk.CheckButton(label="Case insensitive")
 
@@ -98,17 +123,18 @@ class Grid(Gtk.Grid):
         button_box.pack_end(replace_next_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
         button_box.pack_end(find_button, False, False, 0)
-
     
     def on_find_clicked(self, widget):
+        """
+        Retrieves the entered search query and parse rule, then calls the search method appropriate for the selected context.
+        """
         # read search buffer
         buffer = self.find_textview.get_buffer()
         start, end = buffer.get_bounds()
-        text = buffer.get_text(start, end, True)
+        search_query = buffer.get_text(start, end, True)
 
-        # get path of currently opened file
+        # get buffer of currently opened file
         editor_buffer = GPS.EditorBuffer.get()
-        self.path = editor_buffer.file().path
 
         # Get selected parse rule from combo box or default_grammar_rule if none was entered
         selected_find_rule = self.find_parse_rule_combo.get_active_text()
@@ -117,25 +143,62 @@ class Grid(Gtk.Grid):
         else:
             parse_rule = lal.default_grammar_rule
 
-        # search for matches in current file
-        search = SearchResult(self.path, text, parse_rule, self.case_insensitive_button.get_active())
-        self.locations = search.locations
-        console = GPS.Console("Find AST")
-        console.write(str(self.locations))
+        selected_context = self.search_context_combo.get_active_text()
+        
+        switcher = {
+            SearchContext.CURRENT_FILE.value: self.search_current_file,
+            SearchContext.CURRENT_PROJECT.value: self.search_current_project
+        }
 
+        func = switcher.get(selected_context)
+
+        func(editor_buffer, parse_rule, search_query)
+        
         # select first match
         self.on_next_clicked(widget)
 
+    def search_current_file(self, editor_buffer: GPS.EditorBuffer, parse_rule: lal.GrammarRule, search_query: str):
+        """Searches the currently opened file for the provided search query."""
+        path = editor_buffer.file().path
+
+        console = GPS.Console("Find AST")
+
+        # search for matches in current file
+        search = SearchResult(path, search_query, parse_rule, self.case_insensitive_button.get_active())
+        self.locations[path] = search.locations
+        console.write(str(self.locations))
+
+    def search_current_project(self, editor_buffer: GPS.EditorBuffer, parse_rule: lal.GrammarRule, search_query: str):
+        """Searches the entire project for the provided search query."""
+        console = GPS.Console("Find AST")
+
+        current_project = editor_buffer.file().project()
+
+        source_dirs: list[str] = current_project.source_dirs()
+        for directory in source_dirs:
+            directory = directory + "*.adb"
+            filepaths: str = GPS.dir(directory)
+            for filepath in filepaths:
+                search = SearchResult(filepath, search_query, parse_rule, self.case_insensitive_button.get_active())
+                self.locations[filepath] = search.locations
+
+        console.write(str(self.locations) + "\n")
+
     def on_next_clicked(self, widget):
+        """When a search query has been executed, selects the next matched location
+        found in the current file."""
         editor_buffer = GPS.EditorBuffer.get()
-        if len(self.locations) > 0:
-            self.selected_location = (self.selected_location + 1) % len(self.locations)
-            location = self.locations[self.selected_location]
+        current_file = editor_buffer.file().path
+        if len(self.locations[current_file]) > 0:
+            self.selected_location = (self.selected_location + 1) % len(self.locations[current_file])
+            location = self.locations[current_file][self.selected_location]
             start, end = get_editor_locations(editor_buffer, location)
             editor_buffer.select(start, end)
             editor_buffer.current_view().center(start)
 
     def on_replace_next_clicked(self, widget):
+        """When a search query has been executed, replaces the currently selected location
+        and then selects the next matched location in the current file."""
         # Read replace buffer
         buffer = self.replace_textview.get_buffer()
         text_start, text_end = buffer.get_bounds()
@@ -146,33 +209,41 @@ class Grid(Gtk.Grid):
         self.selected_location -= 1
         self.on_find_clicked(widget)
 
-
-    def on_replace_clicked(self, widget):
+    def on_replace_all_clicked(self, widget):
+        """Replaces all found matches with the text entered into the replace textbox."""
         # Read replace buffer
         buffer = self.replace_textview.get_buffer()
         start, end = buffer.get_bounds()
-        text = buffer.get_text(start, end, True)
+        replacement = buffer.get_text(start, end, True)
 
-        # Start replacement
-        self.gps_replace(self.locations, text)
+        editor_buffer = GPS.EditorBuffer.get()
+        current_file = editor_buffer.file().path
+
+        for filepath, replace_locations in self.locations.items():
+            if filepath == current_file:
+                self.gps_replace(replace_locations, replacement)
+            elif len(replace_locations) > 0:
+                replacer = Replacer(filepath, replace_locations, replacement)
+                replacer.replace()
 
         # Remove found matches
-        self.locations = []
+        self.locations = {}
         self.selected_location = -1
 
-    def gps_replace(self, locations, replacement):
-        editor_buffer = GPS.EditorBuffer.get()
-        for location in locations[::-1]:
-            start, end = get_editor_locations(editor_buffer, location)
-            end = end.forward_char(-1)
-            self.locations.remove(location)
-            editor_buffer.delete(start, end)
-            editor_buffer.insert(start, replacement)
-        editor_buffer.save(False)
+def gps_replace(locations: list[Location], replacement: str):
+    """Replaces the text at a given location with the given replacement using GPS."""
+    editor_buffer = GPS.EditorBuffer.get()
+    for location in locations[::-1]:
+        start, end = get_editor_locations(editor_buffer, location)
+        end = end.forward_char(-1)
+        locations.remove(location)
+        editor_buffer.delete(start, end)
+        editor_buffer.insert(start, replacement)
+    editor_buffer.save(False)
     
-def get_editor_locations(editor_buffer, location):
+def get_editor_locations(editor_buffer: GPS.EditorBuffer, location: Location)\
+     -> tuple[GPS.EditorLocation, GPS.EditorLocation]:
+    """Converts a Location to two GPS.EditorLocations"""
     start = editor_buffer.at(location.start_line, location.start_char)
     end = editor_buffer.at(location.end_line, location.end_char)
     return start, end
-
-       

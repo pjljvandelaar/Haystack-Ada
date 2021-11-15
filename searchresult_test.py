@@ -8,7 +8,7 @@ class TestSearchResult(unittest.TestCase):
         # standard put statement
         dosort1 = SearchResult("test_programs/dosort.adb", "Put(Arr(I).X)", rule=lal.GrammarRule.expr_rule)
         self.assertEqual(dosort1.found, True)
-        self.assertEqual(str(dosort1.locations), "[<SlocRange 34:10-34:23>]")
+        self.assertEqual(str(dosort1.locations), "[34:10-34:23]")
 
     def test_for_loop(self):
         # for loop
@@ -21,7 +21,7 @@ class TestSearchResult(unittest.TestCase):
                                              "end loop;\",",
                                rule=lal.GrammarRule.loop_stmt_rule)
         self.assertEqual(dosort2.found, True)
-        self.assertEqual(str(dosort2.locations), "[<SlocRange 32:7-38:16>]")
+        self.assertEqual(str(dosort2.locations), "[32:7-38:16]")
 
     def test_empty(self):
         # empty search term
@@ -49,13 +49,13 @@ class TestSearchResult(unittest.TestCase):
                                         "end if;",
                             rule=lal.GrammarRule.if_stmt_rule)
         self.assertEqual(obj1.found, True)
-        self.assertEqual(str(obj1.locations), "[<SlocRange 38:7-38:50>]")
+        self.assertEqual(str(obj1.locations), "[38:7-38:50]")
 
     # Test of Case (in)sensitive stuff:
     def test_lowercase_insensitive(self):
         hello1 = SearchResult("test_programs/hello.adb", "put(arr(ii).x)", rule=lal.GrammarRule.expr_rule, case_insensitive=True)
         self.assertEqual(hello1.found, True)
-        self.assertEqual(str(hello1.locations), "[<SlocRange 6:4-6:18>]")
+        self.assertEqual(str(hello1.locations), "[6:4-6:18]")
 
     def test_lowercase_sensitive(self):
         hello2 = SearchResult("test_programs/hello.adb", "put(arr(i).x)", rule=lal.GrammarRule.expr_rule)
@@ -67,7 +67,7 @@ class TestSearchResult(unittest.TestCase):
                                             "The_Month := THE_TIME;\n"
                                             "end IF;", rule=lal.GrammarRule.if_stmt_rule, case_insensitive=True)
         self.assertEqual(hello3.found, True)
-        self.assertEqual(str(hello3.locations), "[<SlocRange 13:4-15:11>]")
+        self.assertEqual(str(hello3.locations), "[13:4-15:11]")
 
     #TODO : Real for loop
 

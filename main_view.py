@@ -84,11 +84,14 @@ class main_view(Gtk.Grid):
         self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
         # Create all buttons and add them to the button box
-        find_button = Gtk.Button(label="Find All")
+        find_button = Gtk.Button(label="Find")
         find_button.connect("clicked", self.on_find_clicked)
 
         next_button = Gtk.Button(label="Next")
         next_button.connect("clicked", self.on_next_clicked)
+
+        find_all_button = Gtk.Button(label="Find All")
+        find_all_button.connect("clicked", self.on_find_all_clicked)
 
         replace_next_button = Gtk.Button(label="Replace next")
         replace_next_button.connect("clicked", self.on_replace_next_clicked)
@@ -101,6 +104,7 @@ class main_view(Gtk.Grid):
         button_box.pack_start(self.case_insensitive_button, False, False, 0)
         button_box.pack_end(replace_button, False, False, 0)
         button_box.pack_end(replace_next_button, False, False, 0)
+        button_box.pack_end(find_all_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
         button_box.pack_end(find_button, False, False, 0)
     
@@ -135,10 +139,12 @@ class main_view(Gtk.Grid):
 
             func(editor_buffer, parse_rule, search_query)
 
-            locations_to_gnat(self.locations)
-        
             # select first match
             self.on_next_clicked(widget)
+
+    def on_find_all_clicked(self, widget):
+        self.on_find_clicked(widget)
+        locations_to_gnat(self.locations)
 
     def search_current_file(self, editor_buffer: GPS.EditorBuffer, parse_rule: lal.GrammarRule, search_query: str):
         """Searches the currently opened file for the provided search query."""
@@ -148,7 +154,6 @@ class main_view(Gtk.Grid):
 
         # search for matches in current file
         self.execute_search(filepath, search_query, parse_rule)
-        console.write(str(self.locations) + "\n")
 
     def search_current_project(self, editor_buffer: GPS.EditorBuffer, parse_rule: lal.GrammarRule, search_query: str):
         """Searches the entire project for the provided search query."""
@@ -162,7 +167,6 @@ class main_view(Gtk.Grid):
             filepaths: str = GPS.dir(directory)
             for filepath in filepaths:
                 self.execute_search(filepath, search_query, parse_rule)
-        console.write(str(self.locations) + "\n")
 
     def execute_search(self, filepath: str, search_query: str, parse_rule: lal.GrammarRule):
         search = SearchResult(filepath, search_query, parse_rule, self.case_insensitive_button.get_active())

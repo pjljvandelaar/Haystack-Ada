@@ -1,7 +1,7 @@
 import unittest
 from searchresult import SearchResult
 from replacer import Replacer
-import libadalang as lal
+import libadalang as lal # type: ignore
 
 
 class TestReplacer(unittest.TestCase):

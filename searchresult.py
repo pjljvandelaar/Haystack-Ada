@@ -1,5 +1,5 @@
 import libadalang as lal # type: ignore
-from typing import Optional
+from typing import Optional, List
 from location import Location
 
 class SearchResult:
@@ -13,18 +13,21 @@ class SearchResult:
     :type rule: class:'libadalang.GrammarRule', optional
     """
 
+    locations: List[Location]
+    file_tree: lal.AnalysisUnit
+    fragment_tree: lal.AnalysisUnit
+    last_location: str
+    case_insensitive: Optional[bool]
+    found: bool
+
     def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule,
                  case_insensitive: Optional[bool] = False):
         """Constructor method
         """
-        self.diagnostics = []
         self.locations = []
-        self.rule = rule
-        self.filename = filename
-        self.file_tree = self.analyze()
-        self.fragment = fragment
-        self.fragment_tree = self.analyze(fragment=True)
-        self.last_location = None
+        self.file_tree = self.analyze_file(filename)
+        self.fragment_tree = self.analyze_fragment(fragment, rule)
+        self.last_location = ""
         self.case_insensitive = case_insensitive
         self.is_subtree(self.file_tree.root, self.fragment_tree.root)
         self.found = bool(self.locations)
@@ -70,30 +73,35 @@ class SearchResult:
                 self.locations.append(self.parse_sloc(self.last_location))
         return False
 
-    def analyze(self, fragment: Optional[bool] = False) -> lal.AnalysisUnit:
+    def analyze_fragment(self, fragment: str, rule: Optional[lal.GrammarRule]) -> lal.AnalysisUnit:
         """
         Creates a tree from text fragment
 
-        :param fragment: whether the analyzed input is a fragment
-        :type fragment: bool, optional
         :return: An analysis unit containing the tree
-        :rtype: class:'libadalang.AnalysisUnit'
         """
-        if fragment:
-            rules = lal.GrammarRule._c_to_py[::-1]
-            rules.insert(0, rules.pop(rules.index(str(self.rule))))
-            for idx, rule in enumerate(rules):
-                if idx != 0:
-                    print(rules[idx - 1], "failed, retrying with", rule)
-                context = lal.AnalysisContext()
-                unit = context.get_from_buffer("", self.fragment, rule=getattr(lal.GrammarRule, rule))
-                if not unit.diagnostics:
-                    return unit
-        else:
+        rules = lal.GrammarRule._c_to_py[::-1]
+        rules.insert(0, rules.pop(rules.index(str(rule))))
+        for idx, rule in enumerate(rules):
+            if idx != 0:
+                print(rules[idx - 1], "failed, retrying with", rule)
             context = lal.AnalysisContext()
-            unit = context.get_from_file(self.filename)
+            unit = context.get_from_buffer("", fragment, rule=getattr(lal.GrammarRule, rule))
             if not unit.diagnostics:
                 return unit
+        for d in unit.diagnostics:
+            print(d)
+        raise ValueError
+    
+    def analyze_file(self, filename: str) -> lal.AnalysisUnit:
+        """
+        Creates a tree from ada file
+
+        :return: An analysis unit containing the tree
+        """
+        context = lal.AnalysisContext()
+        unit = context.get_from_file(filename)
+        if not unit.diagnostics:
+            return unit
         for d in unit.diagnostics:
             print(d)
         raise ValueError

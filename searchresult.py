@@ -17,6 +17,10 @@ class SearchResult:
                  case_insensitive: Optional[bool] = False):
         """Constructor method
         """
+        self.wildcards = {
+            "$S_Var": ["Identifier"],
+            "$S_Type": ["DottedName", "Identifier"]
+        }
         self.diagnostics = []
         self.locations = []
         self.rule = rule
@@ -40,9 +44,13 @@ class SearchResult:
         """
         if root1 is None and root2 is None:
             return True
-        if root1 is None or root2 is None or len(root1.children) != len(root2.children):
+        if root1 is None or root2 is None:
             return False
-        if not root1.children and not root2.children and not text_comparison(root1.text, root2.text, self.case_insensitive):
+        if not root2.children and root2.text and root2.text[0] == '$' and self.wild_comparison(root1, root2):
+            return True
+        if len(root1.children) != len(root2.children):
+            return False
+        if not root1.children and not root2.children and not self.text_comparison(root1, root2):
             return False
         for i in range(len(root1.children)):
             if not self.are_identical(root1.children[i], root2.children[i]):
@@ -103,6 +111,17 @@ class SearchResult:
         [line1, pos1], [line2, pos2] = range_[0].split(":"), range_[1].split(":")
         return Location(int(line1), int(line2), int(pos1), int(pos2))
 
+    def wild_comparison(self, root1, root2):
+        return str(root1.__class__) in ["<class 'libadalang." + i + "'>" for i in self.wildcards[root2.text]]
 
-def text_comparison(text1, text2, case_insensitive):
-    return text1 == text2 if not case_insensitive else text1.lower() == text2.lower()
+    def text_comparison(self, root1, root2):
+        return root1.text == root2.text if not self.case_insensitive else root1.text.lower() == root2.text.lower()
+
+
+fragment = "$S_Var : $S_Type;"
+
+# wildcard1 = SearchResult("test_programs/wildcards_tests.adb", "The_Time : Ada.Calendar.Time;", rule=lal.GrammarRule.basic_decl_rule)
+# print(wildcard1.found, wildcard1.locations)
+
+wildcard2 = SearchResult("test_programs/wildcards_tests.adb", fragment, rule=lal.GrammarRule.basic_decl_rule)
+print(wildcard2.found, wildcard2.locations)

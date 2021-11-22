@@ -1,4 +1,4 @@
-import libadalang as lal
+import libadalang as lal # type: ignore
 from typing import Optional
 from location import Location
 
@@ -98,7 +98,11 @@ class SearchResult:
             print(d)
         raise ValueError
 
-    def parse_sloc(self, sloc):
+    def parse_sloc(self, sloc: str) -> Location:
+        """Transforms sloc into Location type element
+
+        :return: Location representing the input sloc
+        """
         range_ = str(sloc).split("-")
         [line1, pos1], [line2, pos2] = range_[0].split(":"), range_[1].split(":")
         return Location(int(line1), int(line2), int(pos1), int(pos2))

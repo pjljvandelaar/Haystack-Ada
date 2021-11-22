@@ -1,6 +1,6 @@
 import unittest
 from searchresult import SearchResult
-import libadalang as lal
+import libadalang as lal # type: ignore
 
 
 class TestSearchResult(unittest.TestCase):

@@ -1,6 +1,7 @@
 import libadalang as lal # type: ignore
-from typing import Optional
+from typing import Optional, List
 from location import Location
+import GPS
 
 class SearchResult:
     """Class used for searching a text in a file and storing its location.
@@ -13,21 +14,26 @@ class SearchResult:
     :type rule: class:'libadalang.GrammarRule', optional
     """
 
-    def __init__(self, filename: str, fragment: str, rule: Optional[lal.GrammarRule] = lal.default_grammar_rule,
-                 case_insensitive: Optional[bool] = False):
+    locations: List[Location]
+    file_tree: lal.AnalysisUnit
+    fragment_tree: lal.AnalysisUnit
+    last_location: str
+    case_insensitive: Optional[bool]
+
+    def __init__(self, filename: str, fragment: str, rule: lal.GrammarRule = lal.default_grammar_rule, case_insensitive: Optional[bool] = False):
         """Constructor method
         """
-        self.diagnostics = []
         self.locations = []
-        self.rule = rule
-        self.filename = filename
-        self.file_tree = self.analyze()
-        self.fragment = fragment
-        self.fragment_tree = self.analyze(fragment=True)
-        self.last_location = None
+        self.last_location = ""
         self.case_insensitive = case_insensitive
+        self.analyze_file(filename)
+        if not self.analyze_fragment(fragment, rule):
+            choice = GPS.MDI.combo_selection_dialog("Try other rules?", "Rule " + str(rule) + " did not parse your search query, should we try other parse rules?", ["Yes", "No"])
+            if choice == "Yes":
+                self.analyze_fragment_try_rules(fragment)
+            else:
+                parse_failure()
         self.is_subtree(self.file_tree.root, self.fragment_tree.root)
-        self.found = bool(self.locations)
 
     def are_identical(self, root1, root2) -> bool:
         """
@@ -70,30 +76,40 @@ class SearchResult:
                 self.locations.append(self.parse_sloc(self.last_location))
         return False
 
-    def analyze(self, fragment: Optional[bool] = False) -> lal.AnalysisUnit:
+    def analyze_fragment(self, fragment:str, rule: lal.GrammarRule) -> bool:
+        context = lal.AnalysisContext()
+        unit = context.get_from_buffer("", fragment, rule=getattr(lal.GrammarRule, rule))
+        if not unit.diagnostics:
+            self.fragment_tree = unit
+            return True
+        return False
+
+    def analyze_fragment_try_rules(self, fragment: str):
         """
         Creates a tree from text fragment
 
-        :param fragment: whether the analyzed input is a fragment
-        :type fragment: bool, optional
         :return: An analysis unit containing the tree
-        :rtype: class:'libadalang.AnalysisUnit'
         """
-        if fragment:
-            rules = lal.GrammarRule._c_to_py[::-1]
-            rules.insert(0, rules.pop(rules.index(str(self.rule))))
-            for idx, rule in enumerate(rules):
-                if idx != 0:
-                    print(rules[idx - 1], "failed, retrying with", rule)
-                context = lal.AnalysisContext()
-                unit = context.get_from_buffer("", self.fragment, rule=getattr(lal.GrammarRule, rule))
-                if not unit.diagnostics:
-                    return unit
-        else:
-            context = lal.AnalysisContext()
-            unit = context.get_from_file(self.filename)
-            if not unit.diagnostics:
-                return unit
+        rules = lal.GrammarRule._c_to_py
+        for idx, rule in enumerate(rules):
+            if idx != 0:
+                print(rules[idx - 1], "failed, retrying with", rule)
+            if self.analyze_fragment(fragment, rule):
+                print("Succeeded with", rule)
+                return
+        parse_failure()
+
+    def analyze_file(self, filename: str):
+        """
+        Creates a tree from ada file
+
+        :return: An analysis unit containing the tree
+        """
+        context = lal.AnalysisContext()
+        unit = context.get_from_file(filename)
+        if not unit.diagnostics:
+            self.file_tree = unit
+            return
         for d in unit.diagnostics:
             print(d)
         raise ValueError
@@ -107,6 +123,10 @@ class SearchResult:
         [line1, pos1], [line2, pos2] = range_[0].split(":"), range_[1].split(":")
         return Location(int(line1), int(line2), int(pos1), int(pos2))
 
+def parse_failure():
+    GPS.MDI.dialog("Search query couldn't be parsed :(")
+    raise ValueError
+    
 
 def text_comparison(text1, text2, case_insensitive):
     return text1 == text2 if not case_insensitive else text1.lower() == text2.lower()

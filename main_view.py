@@ -149,16 +149,11 @@ class main_view(Gtk.Grid):
     def search_current_file(self, editor_buffer: GPS.EditorBuffer, parse_rule: lal.GrammarRule, search_query: str):
         """Searches the currently opened file for the provided search query."""
         filepath = editor_buffer.file().path
-
-        console = GPS.Console("Find AST")
-
         # search for matches in current file
         self.execute_search(filepath, search_query, parse_rule)
 
     def search_current_project(self, editor_buffer: GPS.EditorBuffer, parse_rule: lal.GrammarRule, search_query: str):
         """Searches the entire project for the provided search query."""
-        console = GPS.Console("Find AST")
-
         current_project = editor_buffer.file().project()
 
         source_dirs: list[str] = current_project.source_dirs()

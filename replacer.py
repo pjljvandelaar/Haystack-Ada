@@ -17,14 +17,13 @@ class Replacer:
     :type output: str, optional
     """
 
-    def __init__(self, filename: str, slocs: list, replacement: str, indexes: Optional[Union[list, None]] = None,
+    def __init__(self, filename: str, locations: list, replacement: str, indexes: Optional[Union[list, None]] = None,
                  output: Optional[Union[str, None]] = None):
         """Constructor method
         """
-        self.slocs = slocs
         self.replacement = replacement
         self.filename = filename
-        self.locations = self.parse_sloc()
+        self.locations = locations
         self.indexes = [i for i in range(len(self.locations))] if indexes is None else indexes
         self.output = filename if output is None else output
 
@@ -41,13 +40,24 @@ class Replacer:
             locations.append(Location(int(line1), int(line2), int(pos1), int(pos2)))
         return locations
 
+    def wildcard_replace(self,index):
+        """Performs the replacement in the dictionary of the wildcards
+        """
+        replace = self.replacement
+        for key,value in self.locations[index].wildcards.items():
+            if key in self.replacement:
+                replace = replace.replace(key,value)
+        return replace
+
     def replace(self) -> None:
         """Performs the replacement
         """
         with open(self.filename, "r") as infile:
             lines = infile.readlines()
         parts = []
+        new_replacement = []
         for i, j in enumerate(self.indexes):
+            new_replacement.append(self.wildcard_replace(j))
             start_line = self.locations[j].start_line
             end_line = self.locations[j].end_line
             start_char = self.locations[j].start_char
@@ -71,7 +81,10 @@ class Replacer:
                 output_str += line
             if idx == len(parts) - 1:
                 break
-            output_str += self.replacement
+            if(new_replacement):
+                output_str += new_replacement[idx]
+            else:
+                output_str += self.replacement
 
         with open(self.output, "w") as outfile:
             outfile.write(output_str)

@@ -1,5 +1,4 @@
-from typing import Optional, Union
-from location import Location
+from typing import Optional
 
 
 class Replacer:
@@ -7,8 +6,8 @@ class Replacer:
 
     :param filename: Name of the file that contains the search result
     :type filename: str
-    :param slocs: List of locations of the search results
-    :type slocs: list
+    :param locations: List of locations of the search results
+    :type locations: list
     :param replacement: String that the search match is to be replaced with
     :type replacement: str
     :param indexes: Indexes corresponding to the slocs list elements that are to be replaced
@@ -17,8 +16,8 @@ class Replacer:
     :type output: str, optional
     """
 
-    def __init__(self, filename: str, locations: list, replacement: str, indexes: Optional[Union[list, None]] = None,
-                 output: Optional[Union[str, None]] = None):
+    def __init__(self, filename: str, locations: list, replacement: str, indexes: Optional[list] = None,
+                 output: Optional[str] = None):
         """Constructor method
         """
         self.replacement = replacement
@@ -27,26 +26,13 @@ class Replacer:
         self.indexes = [i for i in range(len(self.locations))] if indexes is None else indexes
         self.output = filename if output is None else output
 
-    def parse_sloc(self) -> list:
-        """Transforms slocs into Location type elements
-
-        :return: List of Locations
-        :rtype: list
-        """
-        locations = []
-        for sloc in self.slocs:
-            sloc_range = str(sloc).split("-")
-            [line1, pos1], [line2, pos2] = sloc_range[0].split(":"), sloc_range[1].split(":")
-            locations.append(Location(int(line1), int(line2), int(pos1), int(pos2)))
-        return locations
-
-    def wildcard_replace(self,index):
+    def wildcard_replace(self, index):
         """Performs the replacement in the dictionary of the wildcards
         """
         replace = self.replacement
-        for key,value in self.locations[index].wildcards.items():
+        for key, value in self.locations[index].wildcards.items():
             if key in self.replacement:
-                replace = replace.replace(key,value)
+                replace = replace.replace(key, value.text)
         return replace
 
     def replace(self) -> None:
@@ -81,7 +67,7 @@ class Replacer:
                 output_str += line
             if idx == len(parts) - 1:
                 break
-            if(new_replacement):
+            if new_replacement:
                 output_str += new_replacement[idx]
             else:
                 output_str += self.replacement

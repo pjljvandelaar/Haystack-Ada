@@ -62,16 +62,16 @@ def replace(
         start_char = locations[j].start_char
         end_char = locations[j].end_char
         if i == 0:
-            parts.append(lines[:start_line - 1])
-            parts[-1].append(lines[start_line - 1][:start_char - 1])
+            parts.append(lines[: start_line - 1])
+            parts[-1].append(lines[start_line - 1][: start_char - 1])
         else:
             previous_end_line = locations[indexes[i - 1]].end_line
             previous_end_char = locations[indexes[i - 1]].end_char
-            parts.append([lines[previous_end_line - 1][previous_end_char - 1:]])
-            parts[-1].extend(lines[previous_end_line:start_line - 1])
-            parts[-1].append(lines[start_line - 1][:start_char - 1])
+            parts.append([lines[previous_end_line - 1][previous_end_char - 1 :]])
+            parts[-1].extend(lines[previous_end_line : start_line - 1])
+            parts[-1].append(lines[start_line - 1][: start_char - 1])
         if i == len(indexes) - 1:
-            parts.append([lines[end_line - 1][end_char - 1:]])
+            parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
 
     output_str = ""
@@ -86,6 +86,7 @@ def replace(
             output_str += replacement
     return output_str
 
+
 def wildcard_replace(locations, replacement, index):
     """
     Performs the replacement in the dictionary of the wildcards
@@ -93,6 +94,7 @@ def wildcard_replace(locations, replacement, index):
     for key, value in locations[index].wildcards.items():
         if key in replacement:
             return replacement.replace(key, value.text)
+
 
 def load_file(filepath: str) -> List[str]:
     """

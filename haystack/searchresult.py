@@ -40,13 +40,27 @@ class SearchResult:
             return True
         if root1 is None or root2 is None:
             return False
-        if not root2.children and root2.text and root2.text[:2] == '$S' and self.wild_comparison(root1, root2):
+        if (
+            not root2.children
+            and root2.text
+            and root2.text[:2] == "$S"
+            and self.wild_comparison(root1, root2)
+        ):
             return True
-        if root2.text and len(root2.text.split()) == 1 and root2.text[:2] == '$M' and self.wild_comparison(root1, root2):
+        if (
+            root2.text
+            and len(root2.text.split()) == 1
+            and root2.text[:2] == "$M"
+            and self.wild_comparison(root1, root2)
+        ):
             return True
         if len(root1.children) != len(root2.children):
             return False
-        if not root1.children and not root2.children and not _text_comparison(root1.text, root2.text, self.case_insensitive):
+        if (
+            not root1.children
+            and not root2.children
+            and not _text_comparison(root1.text, root2.text, self.case_insensitive)
+        ):
             return False
         for i in range(len(root1.children)):
             if not self.are_identical(root1.children[i], root2.children[i]):

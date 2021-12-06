@@ -1,7 +1,8 @@
-import libadalang as lal # type: ignore
-from typing import Optional, List
+import libadalang as lal  # type: ignore
+from typing import Optional, List, Dict
 from location import Location
 import GPS
+
 
 class SearchResult:
     """Class used for searching a text in a file and storing its location.
@@ -15,27 +16,18 @@ class SearchResult:
     """
 
     locations: List[Location]
-    file_tree: lal.AnalysisUnit
-    fragment_tree: lal.AnalysisUnit
     last_location: str
     case_insensitive: Optional[bool]
+    wildcards: Dict[str, lal.AdaNode]
 
-    def __init__(self, filename: str, fragment: str, rule: lal.GrammarRule = lal.default_grammar_rule, case_insensitive: Optional[bool] = False):
-        """Constructor method
-        """
+    def __init__(self, case_insensitive):
+        """Constructor method"""
         self.locations = []
         self.last_location = ""
         self.case_insensitive = case_insensitive
-        self.analyze_file(filename)
-        if not self.analyze_fragment(fragment, rule):
-            choice = GPS.MDI.combo_selection_dialog("Try other rules?", "Rule " + str(rule) + " did not parse your search query, should we try other parse rules?", ["Yes", "No"])
-            if choice == "Yes":
-                self.analyze_fragment_try_rules(fragment)
-            else:
-                parse_failure()
-        self.is_subtree(self.file_tree.root, self.fragment_tree.root)
+        self.wildcards = {}
 
-    def are_identical(self, root1, root2) -> bool:
+    def are_identical(self, root1: lal.AdaNode, root2: lal.AdaNode) -> bool:
         """
         Checks whether leaves of two tree roots are identical
 
@@ -46,9 +38,15 @@ class SearchResult:
         """
         if root1 is None and root2 is None:
             return True
-        if root1 is None or root2 is None or len(root1.children) != len(root2.children):
+        if root1 is None or root2 is None:
             return False
-        if not root1.children and not root2.children and not text_comparison(root1.text, root2.text, self.case_insensitive):
+        if not root2.children and root2.text and root2.text[:2] == '$S' and self.wild_comparison(root1, root2):
+            return True
+        if root2.text and len(root2.text.split()) == 1 and root2.text[:2] == '$M' and self.wild_comparison(root1, root2):
+            return True
+        if len(root1.children) != len(root2.children):
+            return False
+        if not root1.children and not root2.children and not _text_comparison(root1.text, root2.text, self.case_insensitive):
             return False
         for i in range(len(root1.children)):
             if not self.are_identical(root1.children[i], root2.children[i]):
@@ -56,7 +54,7 @@ class SearchResult:
         self.last_location = root1.sloc_range
         return True
 
-    def is_subtree(self, tree, subtree) -> bool:
+    def is_subtree(self, tree: lal.AdaNode, subtree: lal.AdaNode) -> bool:
         """
         Checks whether one tree is a subtree of another tree
 
@@ -73,60 +71,32 @@ class SearchResult:
             return True
         for child in tree.children:
             if self.is_subtree(child, subtree):
-                self.locations.append(self.parse_sloc(self.last_location))
+                self.locations.append(_parse_sloc(self.last_location, self.wildcards))
+        self.wildcards = {}
         return False
 
-    def analyze_fragment(self, fragment:str, rule: lal.GrammarRule) -> bool:
-        context = lal.AnalysisContext()
-        unit = context.get_from_buffer("", fragment, rule=getattr(lal.GrammarRule, rule))
-        if not unit.diagnostics:
-            self.fragment_tree = unit
-            return True
-        return False
+    def wild_comparison(self, root1, root2):
+        if root2.text in self.wildcards:
+            if self.are_identical(self.wildcards[root2.text], root1):
+                return True
+            return False
+        self.wildcards[root2.text] = root1
+        return True
 
-    def analyze_fragment_try_rules(self, fragment: str):
-        """
-        Creates a tree from text fragment
 
-        :return: An analysis unit containing the tree
-        """
-        rules = lal.GrammarRule._c_to_py
-        for idx, rule in enumerate(rules):
-            if idx != 0:
-                print(rules[idx - 1], "failed, retrying with", rule)
-            if self.analyze_fragment(fragment, rule):
-                print("Succeeded with", rule)
-                return
-        parse_failure()
+def _parse_sloc(sloc: str, wildcards: Dict[str, str]) -> Location:
+    """Transforms sloc into Location type element
 
-    def analyze_file(self, filename: str):
-        """
-        Creates a tree from ada file
+    :return: Location representing the input sloc
+    """
+    range_ = str(sloc).split("-")
+    [line1, pos1], [line2, pos2] = range_[0].split(":"), range_[1].split(":")
+    return Location(int(line1), int(line2), int(pos1), int(pos2), wildcards)
 
-        :return: An analysis unit containing the tree
-        """
-        context = lal.AnalysisContext()
-        unit = context.get_from_file(filename)
-        if not unit.diagnostics:
-            self.file_tree = unit
-            return
-        for d in unit.diagnostics:
-            print(d)
-        raise ValueError
 
-    def parse_sloc(self, sloc: str) -> Location:
-        """Transforms sloc into Location type element
-
-        :return: Location representing the input sloc
-        """
-        range_ = str(sloc).split("-")
-        [line1, pos1], [line2, pos2] = range_[0].split(":"), range_[1].split(":")
-        return Location(int(line1), int(line2), int(pos1), int(pos2))
-
-def parse_failure():
-    GPS.MDI.dialog("Search query couldn't be parsed :(")
-    raise ValueError
-    
-
-def text_comparison(text1, text2, case_insensitive):
+def _text_comparison(text1, text2, case_insensitive):
+    """
+    Compares two strings.
+    Case sensitive if case_insensitive is false, case insensitive otherwise.
+    """
     return text1 == text2 if not case_insensitive else text1.lower() == text2.lower()

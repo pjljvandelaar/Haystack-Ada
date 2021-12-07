@@ -1,8 +1,8 @@
 from enum import Enum
 import libadalang as lal  # type: ignore
-import GPS
-import api
-from location import Location
+from haystack import GPS
+from haystack import api
+from haystack.location import Location
 from typing import Tuple, List
 
 from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore
@@ -168,7 +168,7 @@ class main_view(Gtk.Grid):
         """Searches the entire project for the provided search query."""
         current_project = editor_buffer.file().project()
 
-        source_dirs: list[str] = current_project.source_dirs()
+        source_dirs: List[str] = current_project.source_dirs()
         for directory in source_dirs:
             directory = directory + "*.adb"
             filepaths: str = GPS.dir(directory)

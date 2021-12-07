@@ -2,7 +2,7 @@ from typing import List, Tuple
 import searchresult as sr
 import replacer as rep
 from location import Location
-import libadalang as lal
+import libadalang as lal # type: ignore
 
 
 def findall_file(
@@ -54,15 +54,16 @@ def findall_file_try_rules(
 def findall_string(
     search_query: str,
     to_search: str,
-    parse_rule: lal.GrammarRule = lal.default_grammar_rule,
+    search_query_parse_rule: lal.GrammarRule = lal.default_grammar_rule,
+    to_search_parse_rule: lal.GrammarRule = lal.default_grammar_rule,
     case_insensitive: bool = False,
 ) -> List[Location]:
     """
     Similar to re.findall; return all matches of seach_query in the string to_search.
     """
     try:
-        pattern = _analyze_string(search_query, parse_rule)
-        operand = _analyze_string(to_search, parse_rule)
+        pattern = _analyze_string(search_query, search_query_parse_rule)
+        operand = _analyze_string(to_search, to_search_parse_rule)
     except ValueError as error:
         raise error
     return _execute_search(pattern.root, operand.root, case_insensitive)
@@ -83,11 +84,12 @@ def sub_string(
     search_query: str,
     to_replace: str,
     replacement: str,
-    parse_rule: lal.GrammarRule = lal.default_grammar_rule,
+    search_query_parse_rule: lal.GrammarRule = lal.default_grammar_rule,
+    to_replace_parse_rule: lal.GrammarRule = lal.default_grammar_rule,
     case_insensitive: bool = False,
-):
-    locations = findall_string(search_query, to_replace, parse_rule, case_insensitive)
-    rep.replace_string(to_replace, locations, replacement, None)
+) -> str:
+    locations = findall_string(search_query, to_replace, search_query_parse_rule, to_replace_parse_rule, case_insensitive)
+    return rep.replace_string(to_replace, locations, replacement, None)
 
 
 def replace_file(filepath: str, locations: List[Location], replacement: str):

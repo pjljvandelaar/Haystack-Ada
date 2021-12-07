@@ -74,7 +74,7 @@ def replace(
             parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
 
-    output_str = ""
+    output_str = "" if indexes else '\n'.join(lines)
     for idx, part in enumerate(parts):
         for line in part:
             output_str += line
@@ -84,6 +84,7 @@ def replace(
             output_str += new_replacement[idx]
         else:
             output_str += replacement
+
     return output_str
 
 
@@ -91,10 +92,11 @@ def wildcard_replace(locations, replacement, index):
     """
     Performs the replacement in the dictionary of the wildcards
     """
+    result = replacement
     for key, value in locations[index].wildcards.items():
         if key in replacement:
-            return replacement.replace(key, value.text)
-
+            result = result.replace(key, value.text)
+    return result
 
 def load_file(filepath: str) -> List[str]:
     """

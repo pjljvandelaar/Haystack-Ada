@@ -2,6 +2,7 @@ import GPS
 import gs_utils
 from main_view import main_view
 
+
 @gs_utils.interactive(menu="/Find/Find AST")
 def plugin():
     """Creates the Find viewdow when you click the Find AST button in the Find menu."""
@@ -11,9 +12,11 @@ def plugin():
     view = GPS.MDI.get("FindAST")
     view.float()
 
+
 def on_file_changed(hook, file):
     """Reloads the editor when a file is changed on disk."""
-    GPS.EditorBuffer.get(file, force = 1)
+    GPS.EditorBuffer.get(file, force=1)
     return 1
+
 
 GPS.Hook("file_changed_on_disk").add(on_file_changed)

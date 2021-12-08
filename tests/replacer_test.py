@@ -1,6 +1,6 @@
 import unittest
-from searchresult import SearchResult
-from replacer import Replacer
+from haystack.searchresult import SearchResult
+from haystack.replacer import Replacer
 import libadalang as lal # type: ignore
 
 

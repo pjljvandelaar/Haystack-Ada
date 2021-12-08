@@ -1,7 +1,6 @@
 import libadalang as lal  # type: ignore
 from typing import Optional, List, Dict
 from location import Location
-import GPS
 
 
 class SearchResult:
@@ -82,9 +81,11 @@ class SearchResult:
         if tree is None or not subtree.children:
             return False
         if self.are_identical(tree, subtree):
+            self.locations.append(_parse_sloc(self.last_location, self.wildcards))
             return True
         for child in tree.children:
             if self.is_subtree(child, subtree):
+                print("match found:",self.last_location)
                 self.locations.append(_parse_sloc(self.last_location, self.wildcards))
         self.wildcards = {}
         return False

@@ -1,6 +1,6 @@
-import GPS
-import gs_utils
-from main_view import main_view
+from haystack import GPS
+from haystack import gs_utils
+from haystack.main_view import main_view
 
 
 @gs_utils.interactive(menu="/Find/Find AST")

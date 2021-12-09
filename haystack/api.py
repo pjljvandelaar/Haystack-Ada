@@ -92,6 +92,9 @@ def sub_string(
     return rep.replace_string(to_replace, locations, replacement, None)
 
 
+def replace_string():
+    pass
+
 def replace_file(filepath: str, locations: List[Location], replacement: str):
     rep.replace_file(filepath, locations, replacement, None, None)
 

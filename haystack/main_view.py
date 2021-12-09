@@ -1,8 +1,8 @@
 from enum import Enum
 import libadalang as lal  # type: ignore
-from haystack import GPS
-from haystack import api
-from haystack.location import Location
+import GPS
+import api
+from location import Location
 from typing import Tuple, List
 
 from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore

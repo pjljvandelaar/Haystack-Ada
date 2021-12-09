@@ -1,3 +1,7 @@
+"""AST search-and-replace in the current project
+
+This package will add an option to the Find menu allowing users to search and replace in files in the currently opened project.
+"""
 import GPS
 import gs_utils
 from main_view import main_view

@@ -9,11 +9,11 @@ from main_view import main_view
 
 @gs_utils.interactive(menu="/Find/Find AST")
 def plugin():
-    """Creates the Find viewdow when you click the Find AST button in the Find menu."""
+    """Creates the Find window when you click the Find AST button in the Find menu."""
     view = main_view()
     view.show_all()
-    GPS.MDI.add(view, "FindAST", "FindAST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT)
-    view = GPS.MDI.get("FindAST")
+    GPS.MDI.add(view, "Find AST", "Find AST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT)
+    view = GPS.MDI.get("Find AST")
     view.float()
 
 

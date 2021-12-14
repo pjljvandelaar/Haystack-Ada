@@ -1,5 +1,10 @@
+"""
+This module contains the methods used to search for pattern matches.
+The only function used from outside this module is execute_search, which searches for one
+Ada parse tree in another.
+"""
 import libadalang as lal  # type: ignore
-from typing import Optional, List, Dict
+from typing import List, Dict
 from location import Location
 
 
@@ -31,17 +36,17 @@ class SearchResult:
 
     locations: List[Location]
     last_location: str
-    case_insensitive: Optional[bool]
+    case_insensitive: bool
     wildcards: Dict[str, lal.AdaNode]
 
-    def __init__(self, case_insensitive):
+    def __init__(self, case_insensitive: bool):
         """Constructor method"""
         self.locations = []
         self.last_location = ""
         self.case_insensitive = case_insensitive
         self.wildcards = {}
 
-    def are_identical(self, root1: lal.AdaNode, root2: lal.AdaNode) -> bool:
+    def _are_identical(self, root1: lal.AdaNode, root2: lal.AdaNode) -> bool:
         """
         Checks whether leaves of two tree roots are identical
 
@@ -58,14 +63,14 @@ class SearchResult:
             not root2.children
             and root2.text
             and root2.text[:2] == "$S"
-            and self.wild_comparison(root1, root2)
+            and self._wild_comparison(root1, root2)
         ):
             return True
         if (
             root2.text
             and len(root2.text.split()) == 1
             and root2.text[:2] == "$M"
-            and self.wild_comparison(root1, root2)
+            and self._wild_comparison(root1, root2)
         ):
             return True
         if len(root1.children) != len(root2.children):
@@ -77,7 +82,7 @@ class SearchResult:
         ):
             return False
         for i in range(len(root1.children)):
-            if not self.are_identical(root1.children[i], root2.children[i]):
+            if not self._are_identical(root1.children[i], root2.children[i]):
                 return False
         self.last_location = root1.sloc_range
         return True
@@ -95,19 +100,19 @@ class SearchResult:
             return True
         if tree is None or not subtree.children:
             return False
-        if self.are_identical(tree, subtree):
+        if self._are_identical(tree, subtree):
             self.locations.append(_parse_sloc(self.last_location, self.wildcards))
             return True
         for child in tree.children:
             if self.is_subtree(child, subtree):
-                print("match found:",self.last_location)
+                print("match found:", self.last_location)
                 self.locations.append(_parse_sloc(self.last_location, self.wildcards))
         self.wildcards = {}
         return False
 
-    def wild_comparison(self, root1, root2):
+    def _wild_comparison(self, root1: lal.AdaNode, root2: lal.AdaNode) -> bool:
         if root2.text in self.wildcards:
-            if self.are_identical(self.wildcards[root2.text], root1):
+            if self._are_identical(self.wildcards[root2.text], root1):
                 return True
             return False
         self.wildcards[root2.text] = root1
@@ -124,7 +129,7 @@ def _parse_sloc(sloc: str, wildcards: Dict[str, str]) -> Location:
     return Location(int(line1), int(line2), int(pos1), int(pos2), wildcards)
 
 
-def _text_comparison(text1, text2, case_insensitive):
+def _text_comparison(text1: str, text2: str, case_insensitive: bool) -> bool:
     """
     Compares two strings.
     Case sensitive if case_insensitive is false, case insensitive otherwise.

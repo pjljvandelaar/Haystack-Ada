@@ -1,9 +1,13 @@
+"""
+This module defines the GUI of Haystack.
+All of the functionality of Haystack is accessed via the api.
+"""
 from enum import Enum
+from typing import Tuple, List
 import libadalang as lal  # type: ignore
 import GPS
 import api
 from location import Location
-from typing import Tuple, List
 
 from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore
 
@@ -28,7 +32,17 @@ class main_view(Gtk.Grid):
         find_replace_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.attach(find_replace_box, 0, 0, 1, 1)
 
-        # create grammar rule dropdown menu
+        self.create_grammar_rule_dropdown(find_replace_box)
+        self.create_find_text_area(find_replace_box)
+        self.create_replace_text_area(find_replace_box)
+        self.create_search_location_dropdown(find_replace_box)
+        self.create_buttons(find_replace_box)
+
+    def create_grammar_rule_dropdown(self, find_replace_box):
+        """
+        Creates a textbox where the user can enter the parse rule for the search query.
+        Alternatively, the user can click the arrow at the end of the box and select a parse rule from a dropdown menu.
+        """
         parse_rule_box = Gtk.Box()
         parse_rule_label = Gtk.Label(label="Search query parse rule: ")
         self.find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
@@ -41,7 +55,11 @@ class main_view(Gtk.Grid):
 
         find_replace_box.pack_start(parse_rule_box, False, False, 0)
 
-        # Create text area for the search query and add it to the window
+    def create_find_text_area(self, find_replace_box):
+        """
+        Creates a scrolled window with a textbox inside. The user can type the ada code that they would like to search for in here.
+        Once the text is big enough to not fit in the textbox anymore, a scrollbar is automatically added.
+        """
         find_window = Gtk.ScrolledWindow()
         find_window.set_hexpand(True)
         find_window.set_vexpand(True)
@@ -55,7 +73,11 @@ class main_view(Gtk.Grid):
         find_window.add(self.find_textview)
         find_replace_box.pack_start(find_window_frame, True, True, 0)
 
-        # Create text area for the replace query and add it to the window
+    def create_replace_text_area(self, find_replace_box):
+        """
+        Creates a scrolled window with a textbox inside. The user can type the ada code that they would like to use as a replacement in here.
+        Once the text is big enough to not fit in the textbox anymore, a scrollbar is automatically added.
+        """
         replace_window = Gtk.ScrolledWindow()
         replace_window.set_hexpand(True)
         replace_window.set_vexpand(True)
@@ -69,7 +91,10 @@ class main_view(Gtk.Grid):
         replace_window.add(self.replace_textview)
         find_replace_box.pack_start(replace_window_frame, True, True, 0)
 
-        # Create search location dropdown menu
+    def create_search_location_dropdown(self, find_replace_box):
+        """
+        Adds a dropdown menu where the user can select what context to search in.
+        """
         search_context_box = Gtk.Box()
         search_context_label = Gtk.Label(label="Where ")
         self.search_context_combo = Gtk.ComboBoxText.new_with_entry()
@@ -82,11 +107,13 @@ class main_view(Gtk.Grid):
 
         find_replace_box.pack_start(search_context_box, False, False, 0)
 
-        # Create vertical box containing all buttons
+    def create_buttons(self, find_replace_box):
+        """
+        Creates all the buttons of the GUI, links them to the appropriate functions and adds them to the GUI.
+        """
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
 
-        # Create all buttons and add them to the button box
         find_button = Gtk.Button(label="Find")
         find_button.connect("clicked", self.on_find_clicked)
 
@@ -250,8 +277,6 @@ class main_view(Gtk.Grid):
         editor_buffer = GPS.EditorBuffer.get()
         current_file = editor_buffer.file().path
 
-        console = GPS.Console("Find AST")
-
         file_replacements = {}
         for (filepath, replace_location) in self.locations:
             if filepath not in file_replacements:
@@ -261,13 +286,9 @@ class main_view(Gtk.Grid):
 
         for filepath, replace_locations in file_replacements.items():
             if filepath == current_file:
-                string = "Current file: " + filepath + "\n"
-                console.write(string)
                 # gps_replace(replace_locations, replacement)
                 api.replace_file(filepath, replace_locations, replacement)
             elif len(replace_locations) > 0:
-                string = "Other file: " + filepath + "\n"
-                console.write(string)
                 api.replace_file(filepath, replace_locations, replacement)
 
         # Remove found matches
@@ -282,13 +303,10 @@ def gps_replace(locations: List[Location], replacement: str):
     Currently unused, api.replace_file is preferred as it is more tested
     """
     editor_buffer = GPS.EditorBuffer.get()
-    console = GPS.Console("Find AST")
-    console.write("Called gps_replace")
     for location in locations[::-1]:
         start, end = get_editor_locations(editor_buffer, location)
         end = end.forward_char(-1)
         locations.remove(location)
-        console.write(str(location) + " ")
         editor_buffer.delete(start, end)
         editor_buffer.insert(start, replacement)
     editor_buffer.save(False)

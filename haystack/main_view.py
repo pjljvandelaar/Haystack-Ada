@@ -1,8 +1,8 @@
 from enum import Enum
 import libadalang as lal  # type: ignore
-from haystack import GPS
-from haystack import api
-from haystack.location import Location
+import GPS
+import api
+from location import Location
 from typing import Tuple, List
 
 from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore
@@ -115,12 +115,12 @@ class main_view(Gtk.Grid):
         """
         Retrieves the entered search query and parse rule, then calls the search method appropriate for the selected context.
         """
-        # read search buffer
+        # Read search buffer
         buffer = self.find_textview.get_buffer()
         start, end = buffer.get_bounds()
         search_query = buffer.get_text(start, end, True)
 
-        # get buffer of currently opened file
+        # Get buffer of currently opened file
         editor_buffer = GPS.EditorBuffer.get()
 
         if editor_buffer is not None:
@@ -133,11 +133,13 @@ class main_view(Gtk.Grid):
 
             selected_context = self.search_context_combo.get_active_text()
 
+            # Link available contexts to the appropriate search function
             switcher = {
                 SearchContext.CURRENT_FILE.value: self.search_current_file,
                 SearchContext.CURRENT_PROJECT.value: self.search_current_project,
             }
 
+            # Retrieve the right function according to the selected search context and execute that function
             func = switcher.get(selected_context)
             func(editor_buffer, parse_rule, search_query)
 
@@ -145,6 +147,9 @@ class main_view(Gtk.Grid):
             self.on_next_clicked(widget)
 
     def on_find_all_clicked(self, widget):
+        """
+        Executes a search operation and adds the found locations to GNAT Studio's locations view
+        """
         self.on_find_clicked(widget)
         locations_to_gnat(self.locations)
 
@@ -178,6 +183,10 @@ class main_view(Gtk.Grid):
     def execute_search(
         self, filepath: str, search_query: str, parse_rule: lal.GrammarRule
     ):
+        """
+        Searches in the specified file for the specified search query.
+        If the selected parse rule doesn't work, the user is asked whether they want to try other rules.
+        """
         try:
             locations = api.findall_file(
                 search_query,
@@ -295,6 +304,7 @@ def get_editor_locations(
 
 
 def locations_to_gnat(locations: List[Tuple[str, Location]]):
+    """Adds a list of locations to GNAT's locations view"""
     GPS.Locations.remove_category("Find AST")
     for (filepath, location) in locations:
         file = GPS.File(filepath)

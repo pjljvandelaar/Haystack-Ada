@@ -3,6 +3,21 @@ from typing import Optional, List, Dict
 from location import Location
 
 
+def execute_search(
+    pattern: lal.AdaNode, operand: lal.AdaNode, case_insensitive: bool
+) -> List[Location]:
+    """
+    Executes a search operation
+
+    :param pattern: The parse tree to search for
+    :param operand: The parse tree to search in
+    :param case_insensitive: Whether to enable case insensitive searching
+    """
+    search = SearchResult(case_insensitive)
+    search.is_subtree(operand, pattern)
+    return search.locations
+
+
 class SearchResult:
     """Class used for searching a text in a file and storing its location.
 

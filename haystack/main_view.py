@@ -260,10 +260,10 @@ class main_view(Gtk.Grid):
         # Read replace buffer
         buffer = self.replace_textview.get_buffer()
         text_start, text_end = buffer.get_bounds()
-        text = buffer.get_text(text_start, text_end, True)
+        replacement = buffer.get_text(text_start, text_end, True)
 
         # Replace currently selected text, save, search again
-        self.gps_replace([self.locations[self.selected_location]], text)
+        api.replace_file(self.locations[self.selected_location][0], [self.locations[self.selected_location][1]], replacement)
         self.selected_location -= 1
         self.on_find_clicked(widget)
 
@@ -274,9 +274,6 @@ class main_view(Gtk.Grid):
         start, end = buffer.get_bounds()
         replacement = buffer.get_text(start, end, True)
 
-        editor_buffer = GPS.EditorBuffer.get()
-        current_file = editor_buffer.file().path
-
         file_replacements = {}
         for (filepath, replace_location) in self.locations:
             if filepath not in file_replacements:
@@ -285,11 +282,7 @@ class main_view(Gtk.Grid):
                 file_replacements[filepath].append(replace_location)
 
         for filepath, replace_locations in file_replacements.items():
-            if filepath == current_file:
-                # gps_replace(replace_locations, replacement)
-                api.replace_file(filepath, replace_locations, replacement)
-            elif len(replace_locations) > 0:
-                api.replace_file(filepath, replace_locations, replacement)
+            api.replace_file(filepath, replace_locations, replacement)
 
         # Remove found matches
         self.locations = []

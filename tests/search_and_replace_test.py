@@ -1,6 +1,10 @@
-import api
+"""
+This module contains tests according to some general re-write rules.
+Basically, rules that re-write bad code into better code.
+"""
 import libadalang as lal  # type: ignore
-
+import api
+# pylint: disable=missing-function-docstring
 
 def test_not_not():
     assert (
@@ -647,12 +651,17 @@ def run_test(
     find_pattern: str,
     find_pattern_parse_rule: lal.GrammarRule,
     replace_pattern: str,
-    input: str,
+    input_string: str,
     input_parse_rule: lal.GrammarRule,
 ):
+    """
+    Wrapper around api.sub_string. It does nothing more than re-order
+    the function parameters and giving them different names.
+    This was done to make writing the tests slightly easier.
+    """
     return api.sub_string(
         find_pattern,
-        input,
+        input_string,
         replace_pattern,
         find_pattern_parse_rule,
         input_parse_rule,

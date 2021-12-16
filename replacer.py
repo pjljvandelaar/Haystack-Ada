@@ -56,12 +56,12 @@ def _replace(
     replacement: str,
     indexes: List[int] = None,
 ) -> str:
-    indexes: List[int] = (
+    indexes_gen: List[int] = (
         [i for i in range(len(locations))] if indexes is None else indexes
     )
     parts: List[List[str]] = []
     new_replacement: List[str] = []
-    for i, j in enumerate(indexes):
+    for i, j in enumerate(indexes_gen):
         new_replacement.append(_wildcard_replace(locations, replacement, j))
         start_line = locations[j].start_line
         end_line = locations[j].end_line
@@ -71,16 +71,16 @@ def _replace(
             parts.append(lines[: start_line - 1])
             parts[-1].append(lines[start_line - 1][: start_char - 1])
         else:
-            previous_end_line = locations[indexes[i - 1]].end_line
-            previous_end_char = locations[indexes[i - 1]].end_char
+            previous_end_line = locations[indexes_gen[i - 1]].end_line
+            previous_end_char = locations[indexes_gen[i - 1]].end_char
             parts.append([lines[previous_end_line - 1][previous_end_char - 1 :]])
             parts[-1].extend(lines[previous_end_line : start_line - 1])
             parts[-1].append(lines[start_line - 1][: start_char - 1])
-        if i == len(indexes) - 1:
+        if i == len(indexes_gen) - 1:
             parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
 
-    output_str = "" if indexes else "\n".join(lines)
+    output_str = "" if indexes_gen else "\n".join(lines)
     for idx, part in enumerate(parts):
         for line in part:
             output_str += line
@@ -101,7 +101,7 @@ def _wildcard_replace(locations: List[Location], replacement: str, index: int) -
     result = replacement
     for key, value in locations[index].wildcards.items():
         if key in replacement:
-            result = result.replace(key, value.text)
+            result = result.replace(key, value)
     return result
 
 

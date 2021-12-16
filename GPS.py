@@ -146,7 +146,7 @@ used to override some of GPS's internal behavior.
 """
 
 import builtins
-from constructs import INDENTATION_SIMPLE
+from constructs import INDENTATION_SIMPLE # type: ignore
 
 
 class __enum_proxy(object):
@@ -2328,7 +2328,7 @@ class Debugger(object):
     the debugger failed to connect to it.
     """
 
-    breakpoints = []
+    breakpoints = [] # type: ignore
     """
     A read-only property that returns the list of breakpoints currently set
     in the debugger. This information is updated automatically by GPS whenever
@@ -9891,7 +9891,7 @@ class Style(object):
         """
         pass  # implemented in Ada
 
-    def get_name():
+    def get_name(): # type: ignore
         """
         :return: a string, the name of the style.
         """
@@ -10030,7 +10030,7 @@ class Task(object):
         """
         pass  # implemented in Ada
 
-    def label():
+    def label(): # type: ignore
         """
         Return text to be used by UI. Value may change.
 

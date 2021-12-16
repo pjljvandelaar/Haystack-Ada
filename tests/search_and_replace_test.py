@@ -1,7 +1,5 @@
-import unittest
-from haystack import api
+import api
 import libadalang as lal  # type: ignore
-import pytest
 
 
 def test_not_not():

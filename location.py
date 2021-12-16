@@ -2,6 +2,7 @@
 This module defines the Location data structure.
 """
 from typing import Dict
+import libadalang as lal # type: ignore
 
 
 class Location:
@@ -15,7 +16,7 @@ class Location:
     end_line: int
     start_char: int
     end_char: int
-    wildcards: Dict[str, str]
+    wildcards: Dict[str, lal.Identifier]
 
     def __init__(
         self,
@@ -23,7 +24,7 @@ class Location:
         end_line: int,
         start_char: int,
         end_char: int,
-        wildcards: Dict[str, str],
+        wildcards: Dict[str, lal.Identifier],
     ):
         self.start_line = start_line
         self.end_line = end_line

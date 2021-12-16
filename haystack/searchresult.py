@@ -104,9 +104,7 @@ class SearchResult:
             self.locations.append(_parse_sloc(self.last_location, self.wildcards))
             return True
         for child in tree.children:
-            if self.is_subtree(child, subtree):
-                print("match found:", self.last_location)
-                self.locations.append(_parse_sloc(self.last_location, self.wildcards))
+            self.is_subtree(child, subtree)
         self.wildcards = {}
         return False
 

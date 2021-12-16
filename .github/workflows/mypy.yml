@@ -19,4 +19,4 @@ jobs:
         pip install mypy
     - name: Analysing the code with mypy
       run: |
-        mypy `ls -R|grep .py$|xargs`
+        mypy .

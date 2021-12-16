@@ -1,13 +1,15 @@
 """
-This is the api layer of Haystack. The GUI calls this layer whenever any actions need to be performed.
+This is the api layer of Haystack.
+The GUI calls this layer whenever any actions need to be performed.
 All the data is passed from the GUI to the functions in this layer.
-Any necessary transformations to the data are made here and the data is then passed on to the searchResult and replacer modules.
+Any necessary transformations to the data are made here and the data
+is then passed on to the searchResult and replacer modules.
 """
 from typing import List, Tuple
+import libadalang as lal  # type: ignore
 import searchresult as sr
 import replacer as rep
 from location import Location
-import libadalang as lal  # type: ignore
 
 
 def findall_file(
@@ -65,7 +67,8 @@ def findall_file_try_rules(
     matches = _execute_search(pattern.root, operand.root, case_insensitive)
 
     if not matches:
-        # If no matches were found, we might have selected the wrong parse rule, define a new list of rules to try and try again
+        # If no matches were found, we might have selected the wrong parse rule,
+        # define a new list of rules to try and try again
         parse_rules_to_try = [
             rule for rule in parse_rules_to_try if rule not in tried_rules
         ]
@@ -89,7 +92,8 @@ def findall_string(
     :param search_query: The pattern to search for
     :param to_search: The string on which the search operation is performed
     :param search_query_parse_rule: The parse rule used to parse the search query
-    :param to_search_parse_rule: The parse rule used to parse the string on which the search operation is performed
+    :param to_search_parse_rule: The parse rule used to parse the string on which
+            the search operation is performed
     :param case_insensitive: Boolean, enables case insensitive searching
     :return: A list of locations where the string matches the search query
     """
@@ -130,13 +134,15 @@ def sub_string(
     case_insensitive: bool = False,
 ) -> str:
     """
-    Similar to re.sub; search for the search query in the to_replace string, replace all matches with the replacement
+    Similar to re.sub; search for the search query in the to_replace string, 
+    replace all matches with the replacement
 
     :param search_query: The pattern to search for
     :param to_replace: The string on which the sub operation is performed
     :param replacement: The string to replace the matched text with
     :param search_query_parse_rule: The parse rule used to parse the search query
-    :param to_replace_parse_rule: The parse rule used to parse the string on which the sub operation is performed
+    :param to_replace_parse_rule: The parse rule used to parse the string on which the
+            sub operation is performed
     :param case_insensitive: Boolean, enables case insensitive searching
     :return: The resulting string after substituting the found matches with the replacement
     """
@@ -162,7 +168,10 @@ def replace_string(
     :param to_replace: The string to perform a replace operation on
     :param locations: The locations in the string to replace
     :param replacement: The string to replace the specified locations with
-    :param indexes: The locations targeted for the replace operations, only replace the locations as specified by the indexes inclued in the indexes list. Replace all locations if indexes is None
+    :param indexes: The locations targeted for the replace operations,
+                    only replace the locations as specified by the
+                    indexes inclued in the indexes list.
+                    Replace all locations if indexes is None
     :return: The resulting string after replacing the specified locations with the replacement
     """
     return rep.replace_string(to_replace, locations, replacement, indexes)
@@ -181,8 +190,11 @@ def replace_file(
     :param filepath: The the filepath for the file to replace in
     :param locations: The locations in the string to replace
     :param replacement: The string to replace the specified locations with
-    :param indexes: The locations targeted for the replace operations, only replace the locations as specified by the indexes inclued in the indexes list. Replace all locations if indexes is None
-    :param output: The filepath for the file to write the output to. If None, write to the same file as filepath
+    :param indexes: The locations targeted for the replace operations, only replace the locations
+                    as specified by the indexes inclued in the indexes list.
+                    Replace all locations if indexes is None
+    :param output: The filepath for the file to write the output to.
+                    If None, write to the same file as filepath
     """
     rep.replace_file(filepath, locations, replacement, indexes, output)
 
@@ -215,8 +227,7 @@ def _analyze_string(string: str, parse_rule: lal.GrammarRule) -> lal.AnalysisUni
     )
     if not unit.diagnostics:
         return unit
-    else:
-        raise ValueError
+    raise ValueError
 
 
 def _analyze_string_try_rules(
@@ -227,7 +238,8 @@ def _analyze_string_try_rules(
 
     :param string: The string to parse into a parse tree
     :param rules_to_try: The parse rules to try to parse the string with
-    :return: A tuple with the analysis unit containing the parsed tree and the list of rules that were tried
+    :return: A tuple with the analysis unit containing the parsed tree
+            and the list of rules that were tried
     """
     tried_rules: List[lal.GrammarRule] = []
     for idx, rule in enumerate(rules_to_try):

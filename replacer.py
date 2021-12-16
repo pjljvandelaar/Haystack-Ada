@@ -101,7 +101,7 @@ def _wildcard_replace(locations: List[Location], replacement: str, index: int) -
     result = replacement
     for key, value in locations[index].wildcards.items():
         if key in replacement:
-            result = result.replace(key, value)
+            result = result.replace(key, value.text)
     return result
 
 

@@ -1,3 +1,4 @@
+# pylint: skip-file
 # This package contains the documentation for the GPS module
 # and all its classes and methods.
 # There is no code in this package, since the code is written

@@ -249,7 +249,7 @@ class main_view(Gtk.Grid):
             (filepath, location) = self.locations[self.selected_location]
             editor_buffer = GPS.EditorBuffer.get(GPS.File(filepath))
             GPS.MDI.get_by_child(editor_buffer.current_view()).raise_window()
-            GPS.MDI.get("FindAST").raise_window()
+            GPS.MDI.get("Find AST").raise_window()
             start, end = get_editor_locations(editor_buffer, location)
             editor_buffer.select(start, end)
             editor_buffer.current_view().center(start)

@@ -1,8 +1,13 @@
+"""
+This is the api layer of Haystack. The GUI calls this layer whenever any actions need to be performed.
+All the data is passed from the GUI to the functions in this layer.
+Any necessary transformations to the data are made here and the data is then passed on to the searchResult and replacer modules.
+"""
 from typing import List, Tuple
 import searchresult as sr
 import replacer as rep
 from location import Location
-import libadalang as lal # type: ignore
+import libadalang as lal  # type: ignore
 
 
 def findall_file(
@@ -135,11 +140,22 @@ def sub_string(
     :param case_insensitive: Boolean, enables case insensitive searching
     :return: The resulting string after substituting the found matches with the replacement
     """
-    locations = findall_string(search_query, to_replace, search_query_parse_rule, to_replace_parse_rule, case_insensitive)
+    locations = findall_string(
+        search_query,
+        to_replace,
+        search_query_parse_rule,
+        to_replace_parse_rule,
+        case_insensitive,
+    )
     return replace_string(to_replace, locations, replacement, None)
 
 
-def replace_string(to_replace: str, locations: List[Location], replacement: str, indexes: List[int] = None) -> str:
+def replace_string(
+    to_replace: str,
+    locations: List[Location],
+    replacement: str,
+    indexes: List[int] = None,
+) -> str:
     """
     Api wrapper around replacer.replace_string()
 
@@ -151,7 +167,14 @@ def replace_string(to_replace: str, locations: List[Location], replacement: str,
     """
     return rep.replace_string(to_replace, locations, replacement, indexes)
 
-def replace_file(filepath: str, locations: List[Location], replacement: str, indexes: List[int] = None, output: str = None):
+
+def replace_file(
+    filepath: str,
+    locations: List[Location],
+    replacement: str,
+    indexes: List[int] = None,
+    output: str = None,
+):
     """
     Api wrapper around replacer.replace_file()
 

@@ -1,3 +1,8 @@
+"""
+This module is responsible for performing the replace operations.
+The two functions called from outside this class are replace_file and replace_string,
+depending on what type of input the replacecement is performed.
+"""
 from typing import List
 from location import Location
 
@@ -23,12 +28,11 @@ def replace_file(
     :type indexes: list, optional
     :param output: Name of the file to which the modified code will be outputted
     :type output: str, optional
-
     """
-    lines = load_file(filepath)
-    output_str = replace(lines, locations, replacement, indexes)
+    lines = _load_file(filepath)
+    output_str = _replace(lines, locations, replacement, indexes)
     output = filepath if output is None else output
-    write_file(output, output_str)
+    _write_file(output, output_str)
 
 
 def replace_string(
@@ -42,21 +46,23 @@ def replace_string(
     Only sections specified by the list of locations are overwritten and replaced by the replacement parameter.
     """
     lines = to_replace.splitlines()
-    output_str = replace(lines, locations, replacement, indexes)
+    output_str = _replace(lines, locations, replacement, indexes)
     return output_str
 
 
-def replace(
+def _replace(
     lines: List[str],
     locations: List[Location],
     replacement: str,
     indexes: List[int] = None,
 ) -> str:
-    indexes = [i for i in range(len(locations))] if indexes is None else indexes
-    parts = []
-    new_replacement = []
+    indexes: List[int] = (
+        [i for i in range(len(locations))] if indexes is None else indexes
+    )
+    parts: List[List[str]] = []
+    new_replacement: List[str] = []
     for i, j in enumerate(indexes):
-        new_replacement.append(wildcard_replace(locations, replacement, j))
+        new_replacement.append(_wildcard_replace(locations, replacement, j))
         start_line = locations[j].start_line
         end_line = locations[j].end_line
         start_char = locations[j].start_char
@@ -74,7 +80,7 @@ def replace(
             parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
 
-    output_str = "" if indexes else '\n'.join(lines)
+    output_str = "" if indexes else "\n".join(lines)
     for idx, part in enumerate(parts):
         for line in part:
             output_str += line
@@ -88,7 +94,7 @@ def replace(
     return output_str
 
 
-def wildcard_replace(locations, replacement, index):
+def _wildcard_replace(locations: List[Location], replacement: str, index: int) -> str:
     """
     Performs the replacement in the dictionary of the wildcards
     """
@@ -98,7 +104,8 @@ def wildcard_replace(locations, replacement, index):
             result = result.replace(key, value.text)
     return result
 
-def load_file(filepath: str) -> List[str]:
+
+def _load_file(filepath: str) -> List[str]:
     """
     Loads a file's contents into memory as a list of strings
     """
@@ -108,7 +115,7 @@ def load_file(filepath: str) -> List[str]:
     return lines
 
 
-def write_file(filepath: str, lines: str):
+def _write_file(filepath: str, lines: str):
     """
     Writes the contents of a string to a file, overwriting its original contents
     """

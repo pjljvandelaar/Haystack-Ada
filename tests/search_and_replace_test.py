@@ -465,7 +465,7 @@ def test_identical_branches_wrong2():
              Put ("cool");
             else
              Put ("stupid");
-            end if"""
+            end if;"""
     )
 
 
@@ -522,11 +522,12 @@ def test_identical_branches_still_wrong():
             end if;""",
             lal.GrammarRule.if_stmt_rule,
         )
-        == """Boolean := A;
-            begin
+        == """if A then
              Put ("cool");
              Put ("cool");
-            end;"""
+            else
+             Put_line ("stupid");
+            end if;"""
     )
 
 
@@ -622,18 +623,56 @@ def test_not_equals_to_range():
     )
 
 
-def test_extend_not_equals_to_range():
+def test_list_elements_exact():
     assert (
         run_test(
-            "$S_Var not in $M_Vals and then $S_Var /= $S_Val",
-            lal.GrammarRule.expr_rule,
-            "$S_Var not in $M_Vals | $S_Val",
-            "A not in 1 .. 5 and then A /= 10",
-            lal.GrammarRule.expr_rule,
+            "$M_Before; B; C; $M_After;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_After;",
+            "begin B; C; end;",
+            lal.GrammarRule.block_stmt_rule,
         )
-        == "A not in 1 .. 5 | 10"
+        == "begin X; Y; end;"
     )
 
+
+def test_list_elements_head_tail():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_After;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_After;",
+            "begin A; B; C; D; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A; X; Y; D; end;"
+    )
+
+
+def test_list_elements_trails():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_After;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_After;",
+            "begin A1; A2; A3; B; C; D1; D2; D3; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A1; A2; A3; X; Y; D1; D2; D3; end;"
+    )
+
+
+def test_assignment():
+    assert (
+        run_test(
+            "$S_Var : $S_Type := $M_Expr;",
+            lal.GrammarRule.basic_decl_rule,
+            "Y : $S_Type;",
+            "X : Integer;",
+            lal.GrammarRule.basic_decl_rule,
+        )
+        == "Y : Integer;"
+    )
 
 # def test_for_attribute_use():
 #    assert run_test(

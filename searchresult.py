@@ -6,10 +6,11 @@ Ada parse tree in another.
 import libadalang as lal  # type: ignore
 from typing import List, Dict
 from location import Location
+import re
 
 
 def execute_search(
-    pattern: lal.AdaNode, operand: lal.AdaNode, case_insensitive: bool
+        pattern: lal.AdaNode, operand: lal.AdaNode, case_insensitive: bool
 ) -> List[Location]:
     """
     Executes a search operation
@@ -26,12 +27,8 @@ def execute_search(
 class SearchResult:
     """Class used for searching a text in a file and storing its location.
 
-    :param filename: Name of the file to be searched
-    :type filename: str
-    :param fragment: Piece of text to be searched for
-    :type fragment: str
-    :param rule: Grammar rule used to parse the fragment
-    :type rule: class:'libadalang.GrammarRule', optional
+    :param case_insensitive: Flag conveying whether the search should be case insensitive
+    :type case_insensitive: bool, optional
     """
 
     locations: List[Location]
@@ -60,25 +57,35 @@ class SearchResult:
         if root1 is None or root2 is None:
             return False
         if (
-            not root2.children
-            and root2.text
-            and root2.text[:2] == "$S"
-            and self._wild_comparison(root1, root2)
+                not root2.children
+                and root2.text
+                and _is_singular_wildcard(root2.text)
+                and self._wild_comparison(root1, root2)
         ):
             return True
         if (
-            root2.text
-            and len(root2.text.split()) == 1
-            and root2.text[:2] == "$M"
-            and self._wild_comparison(root1, root2)
+                root2.text
+                and _is_plural_wildcard(root2.text)
+                and self._wild_comparison(root1, root2)
         ):
             return True
         if len(root1.children) != len(root2.children):
             return False
+        '''
+        if not _compare_children(root1, root2):
+            return False
+        '''
+        '''
+        new_children = root2.children
+        if len(root1.children) < len(root2.children):
+            new_children = _strip_from_wildcards(root2)
+            for child in list(set(root2.children) - set(new_children)):
+                self.wildcards[child.text] = None
+        '''
         if (
-            not root1.children
-            and not root2.children
-            and not _text_comparison(root1.text, root2.text, self.case_insensitive)
+                not root1.children
+                and not root2.children
+                and not _text_comparison(root1.text, root2.text, self.case_insensitive)
         ):
             return False
         for i in range(len(root1.children)):
@@ -109,15 +116,16 @@ class SearchResult:
         return False
 
     def _wild_comparison(self, root1: lal.AdaNode, root2: lal.AdaNode) -> bool:
-        if root2.text in self.wildcards:
-            if self._are_identical(self.wildcards[root2.text], root1):
-                return True
-            return False
+        for key in self.wildcards.keys():
+            if _ignore_semicolon_comparison(key, root2.text):
+                if self._are_identical(self.wildcards[key], root1):
+                    return True
+                return False
         self.wildcards[root2.text] = root1
         return True
 
 
-def _parse_sloc(sloc: str, wildcards: Dict[str, str]) -> Location:
+def _parse_sloc(sloc: str, wildcards: Dict[str, lal.AdaNode]) -> Location:
     """Transforms sloc into Location type element
 
     :return: Location representing the input sloc
@@ -133,3 +141,38 @@ def _text_comparison(text1: str, text2: str, case_insensitive: bool) -> bool:
     Case sensitive if case_insensitive is false, case insensitive otherwise.
     """
     return text1 == text2 if not case_insensitive else text1.lower() == text2.lower()
+
+
+def _ignore_semicolon_comparison(text1: str, text2: str) -> bool:
+    """
+    Compares two strings, ignoring the trailing semicolon
+    """
+    return text1.rstrip(';') == text2.rstrip(';')
+
+
+def _is_singular_wildcard(text: str) -> bool:
+    """
+    Checks whether a string is a singular wildcard
+    """
+    return bool(re.search("^\$S_[A-Z][A-Za-z_]*[0-9]*(;)?$", text))
+
+
+def _is_plural_wildcard(text: str) -> bool:
+    """
+    Checks whether a string is a plural wildcard
+    """
+    return bool(re.search("^\$M_[A-Z][A-Za-z_]*[0-9]*(;)?$", text))
+
+
+'''
+def _compare_children(root1, root2) -> bool:
+    all_children = len(root2.children)
+    to_compare = len(root1.children)
+    wildcards = sum(_is_plural_wildcard(child.text) for child in root2.children)
+    return to_compare >= (all_children - wildcards)
+'''
+'''
+def _strip_from_wildcards(root):
+    new_children = [i for i in root.children if not i.text or not _is_plural_wildcard(i.text)]
+    return new_children
+'''

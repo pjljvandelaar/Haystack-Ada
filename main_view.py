@@ -120,6 +120,9 @@ class main_view(Gtk.Grid):
         next_button = Gtk.Button(label="Next")
         next_button.connect("clicked", self.on_next_clicked)
 
+        previous_button = Gtk.Button(label="Previous")
+        previous_button.connect("clicked", self.on_previous_clicked)
+
         find_all_button = Gtk.Button(label="Find All")
         find_all_button.connect("clicked", self.on_find_all_clicked)
 
@@ -135,6 +138,7 @@ class main_view(Gtk.Grid):
         button_box.pack_end(replace_button, False, False, 0)
         button_box.pack_end(replace_next_button, False, False, 0)
         button_box.pack_end(find_all_button, False, False, 0)
+        button_box.pack_end(previous_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
         button_box.pack_end(find_button, False, False, 0)
 
@@ -212,8 +216,10 @@ class main_view(Gtk.Grid):
     ):
         """
         Searches in the specified file for the specified search query.
-        If the selected parse rule doesn't work, the user is asked whether they want to try other rules.
+        If the selected parse rule doesn't work,
+        the user is asked whether they want to try other rules.
         """
+        # TODO: See if GNAT Studio has a function that can return whether there is an error in your file. If so, tell the user to fix that first
         try:
             locations = api.findall_file(
                 search_query,
@@ -238,21 +244,25 @@ class main_view(Gtk.Grid):
                 )
             else:
                 return
+        self.locations = []
         for location in locations:
             self.locations.append((filepath, location))
 
     def on_next_clicked(self, widget):
-        """When a search query has been executed, selects the next matched location
-        found in the current file."""
+        """When a search query has been executed,
+        selects the next matched location found."""
         if len(self.locations) > 0:
             self.selected_location = (self.selected_location + 1) % len(self.locations)
             (filepath, location) = self.locations[self.selected_location]
-            editor_buffer = GPS.EditorBuffer.get(GPS.File(filepath))
-            GPS.MDI.get_by_child(editor_buffer.current_view()).raise_window()
-            GPS.MDI.get("Find AST").raise_window()
-            start, end = get_editor_locations(editor_buffer, location)
-            editor_buffer.select(start, end)
-            editor_buffer.current_view().center(start)
+            select_location(filepath, location)
+
+    def on_previous_clicked(self, widget):
+        """When a search query has been executed,
+        selects the previous matched location found."""
+        if len(self.locations) > 0:
+            self.selected_location = (self.selected_location - 1) % len(self.locations)
+            (filepath, location) = self.locations[self.selected_location]
+            select_location(filepath, location)
 
     def on_replace_next_clicked(self, widget):
         """When a search query has been executed, replaces the currently selected location
@@ -325,3 +335,14 @@ def locations_to_gnat(locations: List[Tuple[str, Location]]):
             start.beginning_of_line(), end.end_of_line().forward_char(-1)
         )
         GPS.Locations.add("Find AST", file, start.line(), start.column(), chars)
+
+def select_location(filepath: str, location: Location):
+    """
+    Selects a specified location in a specified file and centers the editor view on it.
+    """
+    editor_buffer = GPS.EditorBuffer.get(GPS.File(filepath))
+    GPS.MDI.get_by_child(editor_buffer.current_view()).raise_window()
+    GPS.MDI.get("Find AST").raise_window()
+    start, end = get_editor_locations(editor_buffer, location)
+    editor_buffer.select(start, end)
+    editor_buffer.current_view().center(start)

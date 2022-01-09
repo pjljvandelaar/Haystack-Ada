@@ -81,9 +81,11 @@ class SearchResult:
             and not _text_comparison(root1.text, root2.text, self.case_insensitive)
         ):
             return False
-        for i in range(len(root1.children)):
-            if not self._are_identical(root1.children[i], root2.children[i]):
-                return False
+        if not all(
+            self._are_identical(child1, child2)
+            for child1, child2 in zip(root1.children, root2.children)
+        ):
+            return False
         self.last_location = root1.sloc_range
         return True
 

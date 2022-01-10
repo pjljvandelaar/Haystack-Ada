@@ -10,6 +10,7 @@ import libadalang as lal  # type: ignore
 import searchresult as sr
 import replacer as rep
 from location import Location
+import exceptions
 
 
 def findall_file(
@@ -28,10 +29,13 @@ def findall_file(
     :return: A list of locations where the file matches the search query
     """
     try:
-        pattern = _analyze_string(search_query, parse_rule)
         operand = _analyze_file(filepath)
     except ValueError as error:
-        raise error
+        raise exceptions.OperandParseError from error
+    try:
+        pattern = _analyze_string(search_query, parse_rule)
+    except ValueError as error:
+        raise exceptions.PatternParseException from error
     return _execute_search(pattern.root, operand.root, case_insensitive)
 
 
@@ -98,10 +102,13 @@ def findall_string(
     :return: A list of locations where the string matches the search query
     """
     try:
-        pattern = _analyze_string(search_query, search_query_parse_rule)
         operand = _analyze_string(to_search, to_search_parse_rule)
     except ValueError as error:
-        raise error
+        raise exceptions.OperandParseError from error
+    try:
+        pattern = _analyze_string(search_query, search_query_parse_rule)
+    except ValueError as error:
+        raise exceptions.PatternParseException from error
     return _execute_search(pattern.root, operand.root, case_insensitive)
 
 

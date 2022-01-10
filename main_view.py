@@ -8,6 +8,7 @@ import libadalang as lal  # type: ignore
 import GPS
 import api
 from location import Location
+import exceptions
 
 from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore
 
@@ -227,7 +228,7 @@ class main_view(Gtk.Grid):
                 parse_rule,
                 self.case_insensitive_button.get_active(),
             )
-        except ValueError:
+        except exceptions.PatternParseException:
             choice = GPS.MDI.combo_selection_dialog(
                 "Try other rules?",
                 "Rule "
@@ -244,6 +245,9 @@ class main_view(Gtk.Grid):
                 )
             else:
                 return
+        except exceptions.OperandParseError:
+            GPS.MDI.dialog("The file could not be parsed. Please check for any errors and fix them.")
+            return
         self.locations = []
         for location in locations:
             self.locations.append((filepath, location))

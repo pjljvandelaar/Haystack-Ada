@@ -1,4 +1,59 @@
-# Haystack-Ada-Plugin
+# Haystack-Ada
+Haystack-Ada allows users to perform Abstract Syntax Tree (AST)-based search and replace operations on Ada files within GNAT Studio.
+The search patterns must be compilable Ada code, but due to the nature of AST-based searching, formatting of the search pattern does not matter.
+This allows one to match code in multiple locations at the same time even if the code fragments themselves are also formatted differently.
+
+To assist in matching a wide variety of code fragments in one go, Haystack supports the use of wildcards.
+There are two types of wildcards, those starting with "$S_" and those starting with "$M_".
+
+"$S_" wildcards allow one to match a single thing, be that a single expression, a single statement or anything else.
+As long as Ada parses it to a single AST node, the "$S_" wildcard can match it.
+
+"$M_" wildcards allow one to match zero or more things. This makes these types of wildcards more flexible but also more unpredictable.
+
+Wildcards must start with either "$S_" or "$M_" and any alphanumeric string is allowed to follow.
+
+If a wildcard was used to match code in the search pattern, it can be re-used in the replace pattern to copy over what was matched.
+Simply write the wildcard identically to how it was written in the search pattern.
+
+## Example
+Say you have the following code fragment:
+```Ada
+if A = B then
+ Put_Line ("A equals B");
+else
+ Put_Line ("A does not equal B");
+ A := B;
+end if;
+```
+
+If you decide you want to flip the if statement, you could write the following search query to match the code fragment:
+```Ada
+if $S_A = $S_B then
+ $M_stmts_true;
+else
+ $M_stmts_false;
+end if;
+```
+
+and the following replace statement:
+```Ada
+if $S_A /= $S_B then
+ $M_stmts_false;
+else
+ $M_stmts_true;
+end if;
+```
+
+Then the result would look like:
+```Ada
+if A /= B then
+ Put_Line ("A does not equal B");
+ A := B;
+else
+ Put_Line ("A equals B");
+end if;
+```
 
 ## Installation:
 ### Requirements

@@ -250,7 +250,8 @@ class main_view(Gtk.Grid):
         If the selected parse rule doesn't work,
         the user is asked whether they want to try other rules.
         """
-        # TODO: See if GNAT Studio has a function that can return whether there is an error in your file. If so, tell the user to fix that first
+        editor_buffer = GPS.EditorBuffer.get(file=GPS.File(filepath))
+        editor_buffer.save(interactive = True)
         try:
             locations = api.findall_file(
                 search_query,

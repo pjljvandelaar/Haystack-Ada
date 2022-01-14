@@ -113,3 +113,6 @@ Finally the buttons:
  - Previous: Once matches have been found, this button will select the previous match found.
  - Replace Next: Once matches have been found, this button will apply the replacement to the currently selected match and then select the next match.
  - Replace All: Once matches have been found, this button will apply the replacement to all found matches.
+
+## Related technologies
+* [Renaissance-Ada](https://github.com/TNO/Renaissance-Ada) is [ESI](https://esi.nl)'s Renaissance approach to legacy [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) software. Haystack-Ada is a partial re-implementation of the rejuvenation library in Python

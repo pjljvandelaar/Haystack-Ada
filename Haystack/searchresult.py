@@ -5,7 +5,7 @@ Ada parse tree in another.
 """
 import libadalang as lal  # type: ignore
 from typing import List, Dict
-from location import Location
+from Haystack.location import Location
 
 
 def execute_search(

@@ -1,17 +1,37 @@
+"""AST search-and-replace in the current project
+
+This package will add an option to the Find menu allowing users to search and replace in files in the currently opened project.
 """
-This module defines the GUI of Haystack.
-All of the functionality of Haystack is accessed via the api.
-"""
+import GPS
+import gs_utils
 from enum import Enum
 from typing import Tuple, List
 import libadalang as lal  # type: ignore
-import GPS
-import api
-from location import Location
-import exceptions
+from Haystack import api
+from Haystack.location import Location
+from Haystack import exceptions
 
 from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore
 
+
+
+@gs_utils.interactive(menu="/Find/Find AST")
+def plugin():
+    """Creates the Find window when you click the Find AST button in the Find menu."""
+    view = main_view()
+    view.show_all()
+    GPS.MDI.add(view, "Find AST", "Find AST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT)
+    view = GPS.MDI.get("Find AST")
+    view.float()
+
+
+def on_file_changed(hook, file):
+    """Reloads the editor when a file is changed on disk."""
+    GPS.EditorBuffer.get(file, force=1)
+    return 1
+
+
+GPS.Hook("file_changed_on_disk").add(on_file_changed)
 
 class SearchContext(Enum):
     """Enum containing all contexts in which you can search for ASTs."""
@@ -118,14 +138,14 @@ class main_view(Gtk.Grid):
         find_button = Gtk.Button(label="Find")
         find_button.connect("clicked", self.on_find_clicked)
 
+        find_all_button = Gtk.Button(label="Find All")
+        find_all_button.connect("clicked", self.on_find_all_clicked)
+
         next_button = Gtk.Button(label="Next")
         next_button.connect("clicked", self.on_next_clicked)
 
         previous_button = Gtk.Button(label="Previous")
         previous_button.connect("clicked", self.on_previous_clicked)
-
-        find_all_button = Gtk.Button(label="Find All")
-        find_all_button.connect("clicked", self.on_find_all_clicked)
 
         replace_next_button = Gtk.Button(label="Replace next")
         replace_next_button.connect("clicked", self.on_replace_next_clicked)
@@ -133,20 +153,28 @@ class main_view(Gtk.Grid):
         replace_button = Gtk.Button(label="Replace All")
         replace_button.connect("clicked", self.on_replace_all_clicked)
 
+        self.contextual_buttons = [next_button, previous_button, replace_next_button, replace_button]
+        self.set_button_sensitivity(False)
+
         self.case_insensitive_button = Gtk.CheckButton(label="Case insensitive")
 
         button_box.pack_start(self.case_insensitive_button, False, False, 0)
         button_box.pack_end(replace_button, False, False, 0)
         button_box.pack_end(replace_next_button, False, False, 0)
-        button_box.pack_end(find_all_button, False, False, 0)
         button_box.pack_end(previous_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
+        button_box.pack_end(find_all_button, False, False, 0)
         button_box.pack_end(find_button, False, False, 0)
+
+    def set_button_sensitivity(self, sensitive: bool):
+        for button in self.contextual_buttons:
+            button.set_sensitive(sensitive)
 
     def on_find_clicked(self, widget):
         """
         Retrieves the entered search query and parse rule, then calls the search method appropriate for the selected context.
         """
+        self.set_button_sensitivity(False)
         # Read search buffer
         buffer = self.find_textview.get_buffer()
         start, end = buffer.get_bounds()
@@ -175,8 +203,10 @@ class main_view(Gtk.Grid):
             func = switcher.get(selected_context)
             func(editor_buffer, parse_rule, search_query)
 
-            # select first match
-            self.on_next_clicked(widget)
+            if len(self.locations) > 0: 
+                self.set_button_sensitivity(True)
+                # select first match
+                self.on_next_clicked(widget)
 
     def on_find_all_clicked(self, widget):
         """
@@ -302,6 +332,7 @@ class main_view(Gtk.Grid):
         # Remove found matches
         self.locations = []
         self.selected_location = -1
+        self.set_button_sensitivity(False)
 
 
 def gps_replace(locations: List[Location], replacement: str):

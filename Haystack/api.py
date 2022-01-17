@@ -7,10 +7,10 @@ is then passed on to the searchResult and replacer modules.
 """
 from typing import List, Tuple
 import libadalang as lal  # type: ignore
-import searchresult as sr
-import replacer as rep
-from location import Location
-import exceptions
+from Haystack import searchresult as sr
+from Haystack import replacer as rep
+from Haystack.location import Location
+from Haystack import exceptions
 
 
 def findall_file(

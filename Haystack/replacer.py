@@ -4,7 +4,7 @@ The two functions called from outside this class are replace_file and replace_st
 depending on what type of input the replacecement is performed.
 """
 from typing import List
-from location import Location
+from Haystack.location import Location
 
 
 def replace_file(

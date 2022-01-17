@@ -87,7 +87,7 @@ or %USERPROFILE%\\.gnatstudio\plug-ins on Windows
 Add the root folder of Haystack-Ada to the GNATSTUDIO_CUSTOM_PATH environment variable.
 
 #### 3. Command line
-For an impermanent installation of the plug-in, you can launch GNAT Studio from the command line:
+For a temporary installation of the plug-in, you can launch GNAT Studio from the command line:
 ```
 $ gnatstudio --load=python:path/to/haystack_plugin.py
 ```

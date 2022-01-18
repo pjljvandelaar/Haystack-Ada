@@ -1,5 +1,5 @@
 import libadalang as lal # type: ignore
-import api
+from Haystack import api
 # pylint: disable=missing-function-docstring
 # pylint: disable=protected-access
 

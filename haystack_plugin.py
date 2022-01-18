@@ -19,8 +19,11 @@ def plugin():
     """Creates the Find window when you click the Find AST button in the Find menu."""
     view = MainView()
     view.show_all()
-    GPS.MDI.add( # pylint: disable=unexpected-keyword-arg
-        view, "Find AST", "Find AST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT # pylint: disable=no-member
+    GPS.MDI.add(  # pylint: disable=unexpected-keyword-arg
+        view,
+        "Find AST",
+        "Find AST",
+        flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT,  # pylint: disable=no-member
     )
     view = GPS.MDI.get("Find AST")
     view.float()
@@ -309,7 +312,7 @@ class MainView(Gtk.Grid):
         for location in locations:
             self.locations.append((filepath, location))
 
-    def on_next_clicked(self, widget): # pylint: disable=unused-argument
+    def on_next_clicked(self, widget):  # pylint: disable=unused-argument
         """When a search query has been executed,
         selects the next matched location found."""
         if len(self.locations) > 0:
@@ -317,7 +320,7 @@ class MainView(Gtk.Grid):
             (filepath, location) = self.locations[self.selected_location]
             select_location(filepath, location)
 
-    def on_previous_clicked(self, widget): # pylint: disable=unused-argument
+    def on_previous_clicked(self, widget):  # pylint: disable=unused-argument
         """When a search query has been executed,
         selects the previous matched location found."""
         if len(self.locations) > 0:
@@ -343,7 +346,7 @@ class MainView(Gtk.Grid):
         self.selected_location -= 1
         self.on_find_clicked(widget)
 
-    def on_replace_all_clicked(self, widget): # pylint: disable=unused-argument
+    def on_replace_all_clicked(self, widget):  # pylint: disable=unused-argument
         """Replaces all found matches with the text entered into the replace textbox."""
         # Read replace buffer
         buffer = self.replace_textview.get_buffer()

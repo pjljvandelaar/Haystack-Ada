@@ -143,7 +143,7 @@ def sub_string(
     case_insensitive: bool = False,
 ) -> str:
     """
-    Similar to re.sub; search for the search query in the to_replace string, 
+    Similar to re.sub; search for the search query in the to_replace string,
     replace all matches with the replacement
 
     :param search_query: The pattern to search for

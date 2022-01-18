@@ -1,37 +1,39 @@
 """AST search-and-replace in the current project
 
-This package will add an option to the Find menu allowing users to search and replace in files in the currently opened project.
+This package will add an option to the Find menu allowing users to
+search and replace in files in the currently opened project.
 """
-import GPS
-import gs_utils
 from enum import Enum
 from typing import Tuple, List
+from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore # pylint: disable=import-error,unused-import
 import libadalang as lal  # type: ignore
+import gs_utils  # type: ignore # pylint: disable=import-error
+import GPS
 from Haystack import api
 from Haystack.location import Location
 from Haystack import exceptions
 
-from gi.repository import Gtk, GLib, Gdk, GObject  # type: ignore
 
-
-
-@gs_utils.interactive(menu="/Find/Find AST")
+@gs_utils.interactive(menu="/Find/Find AST")  # type: ignore
 def plugin():
     """Creates the Find window when you click the Find AST button in the Find menu."""
-    view = main_view()
+    view = MainView()
     view.show_all()
-    GPS.MDI.add(view, "Find AST", "Find AST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT)
+    GPS.MDI.add( # pylint: disable=unexpected-keyword-arg
+        view, "Find AST", "Find AST", flags=GPS.MDI.FLAGS_ALWAYS_DESTROY_FLOAT # pylint: disable=no-member
+    )
     view = GPS.MDI.get("Find AST")
     view.float()
 
 
-def on_file_changed(hook, file):
+def on_file_changed(hook, file):  # pylint: disable=unused-argument
     """Reloads the editor when a file is changed on disk."""
     GPS.EditorBuffer.get(file, force=1)
     return 1
 
 
 GPS.Hook("file_changed_on_disk").add(on_file_changed)
+
 
 class SearchContext(Enum):
     """Enum containing all contexts in which you can search for ASTs."""
@@ -40,7 +42,7 @@ class SearchContext(Enum):
     CURRENT_PROJECT = "Files from current project"
 
 
-class main_view(Gtk.Grid):
+class MainView(Gtk.Grid):
     """The Find window"""
 
     def __init__(self):
@@ -62,12 +64,15 @@ class main_view(Gtk.Grid):
     def create_grammar_rule_dropdown(self, find_replace_box):
         """
         Creates a textbox where the user can enter the parse rule for the search query.
-        Alternatively, the user can click the arrow at the end of the box and select a parse rule from a dropdown menu.
+        Alternatively, the user can click the arrow at the end of the box and select a
+        parse rule from a dropdown menu.
         """
         parse_rule_box = Gtk.Box()
         parse_rule_label = Gtk.Label(label="Search query parse rule: ")
         self.find_parse_rule_combo = Gtk.ComboBoxText.new_with_entry()
-        for rule in sorted(lal.GrammarRule._c_to_py):
+        for rule in sorted(
+            lal.GrammarRule._c_to_py  # pylint: disable=protected-access
+        ):
             self.find_parse_rule_combo.append_text(rule)
         self.find_parse_rule_combo.set_wrap_width(4)
 
@@ -78,8 +83,10 @@ class main_view(Gtk.Grid):
 
     def create_find_text_area(self, find_replace_box):
         """
-        Creates a scrolled window with a textbox inside. The user can type the ada code that they would like to search for in here.
-        Once the text is big enough to not fit in the textbox anymore, a scrollbar is automatically added.
+        Creates a scrolled window with a textbox inside.
+        The user can type the ada code that they would like to search for in here.
+        Once the text is big enough to not fit in the textbox anymore, a scrollbar
+        is automatically added.
         """
         find_window = Gtk.ScrolledWindow()
         find_window.set_hexpand(True)
@@ -96,8 +103,11 @@ class main_view(Gtk.Grid):
 
     def create_replace_text_area(self, find_replace_box):
         """
-        Creates a scrolled window with a textbox inside. The user can type the ada code that they would like to use as a replacement in here.
-        Once the text is big enough to not fit in the textbox anymore, a scrollbar is automatically added.
+        Creates a scrolled window with a textbox inside.
+        The user can type the ada code that they would like to use
+        as a replacement in here.
+        Once the text is big enough to not fit in the textbox anymore,
+        a scrollbar is automatically added.
         """
         replace_window = Gtk.ScrolledWindow()
         replace_window.set_hexpand(True)
@@ -130,7 +140,8 @@ class main_view(Gtk.Grid):
 
     def create_buttons(self, find_replace_box):
         """
-        Creates all the buttons of the GUI, links them to the appropriate functions and adds them to the GUI.
+        Creates all the buttons of the GUI, links them to the appropriate
+        functions and adds them to the GUI.
         """
         button_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.attach_next_to(button_box, find_replace_box, Gtk.PositionType.RIGHT, 1, 2)
@@ -153,7 +164,12 @@ class main_view(Gtk.Grid):
         replace_button = Gtk.Button(label="Replace All")
         replace_button.connect("clicked", self.on_replace_all_clicked)
 
-        self.contextual_buttons = [next_button, previous_button, replace_next_button, replace_button]
+        self.contextual_buttons = [
+            next_button,
+            previous_button,
+            replace_next_button,
+            replace_button,
+        ]
         self.set_button_sensitivity(False)
 
         self.case_insensitive_button = Gtk.CheckButton(label="Case insensitive")
@@ -167,12 +183,19 @@ class main_view(Gtk.Grid):
         button_box.pack_end(find_button, False, False, 0)
 
     def set_button_sensitivity(self, sensitive: bool):
+        """
+        Changes the sensitivity of the contextual buttons.
+        When a button is not sensitive, it is grayed out and cannot be clicked.
+        These are the buttons that can only be used when matches have already been found.
+        One example is the next button.
+        """
         for button in self.contextual_buttons:
             button.set_sensitive(sensitive)
 
     def on_find_clicked(self, widget):
         """
-        Retrieves the entered search query and parse rule, then calls the search method appropriate for the selected context.
+        Retrieves the entered search query and parse rule,
+        then calls the search method appropriate for the selected context.
         """
         self.set_button_sensitivity(False)
         # Read search buffer
@@ -199,11 +222,12 @@ class main_view(Gtk.Grid):
                 SearchContext.CURRENT_PROJECT.value: self.search_current_project,
             }
 
-            # Retrieve the right function according to the selected search context and execute that function
+            # Retrieve the right function according to the
+            # selected search context and execute that function
             func = switcher.get(selected_context)
             func(editor_buffer, parse_rule, search_query)
 
-            if len(self.locations) > 0: 
+            if len(self.locations) > 0:
                 self.set_button_sensitivity(True)
                 # select first match
                 self.on_next_clicked(widget)
@@ -251,7 +275,7 @@ class main_view(Gtk.Grid):
         the user is asked whether they want to try other rules.
         """
         editor_buffer = GPS.EditorBuffer.get(file=GPS.File(filepath))
-        editor_buffer.save(interactive = True)
+        editor_buffer.save(interactive=True)
         try:
             locations = api.findall_file(
                 search_query,
@@ -271,13 +295,15 @@ class main_view(Gtk.Grid):
                 locations = api.findall_file_try_rules(
                     search_query,
                     filepath,
-                    lal.GrammarRule._c_to_py,
+                    lal.GrammarRule._c_to_py,  # pylint: disable=protected-access
                     self.case_insensitive_button.get_active(),
                 )
             else:
                 return
         except exceptions.OperandParseError:
-            GPS.MDI.dialog("The file could not be parsed. Please check for any errors and fix them.")
+            GPS.MDI.dialog(
+                "The file could not be parsed. Please check for any errors and fix them."
+            )  # pylint: disable=line-too-long
             return
         self.locations = []
         for location in locations:
@@ -308,7 +334,12 @@ class main_view(Gtk.Grid):
         replacement = buffer.get_text(text_start, text_end, True)
 
         # Replace currently selected text, save, search again
-        api.replace_file(self.locations[self.selected_location][0], [self.locations[self.selected_location][1]], replacement)
+        api.replace_file(
+            self.locations[self.selected_location][0],
+            [self.locations[self.selected_location][1]],
+            replacement,
+        )
+
         self.selected_location -= 1
         self.on_find_clicked(widget)
 
@@ -337,7 +368,8 @@ class main_view(Gtk.Grid):
 
 def gps_replace(locations: List[Location], replacement: str):
     """
-    Replaces the text at a given location in the currently focused file with the given replacement using GPS.
+    Replaces the text at a given location in the currently focused
+    file with the given replacement using GPS.
 
     Currently unused, api.replace_file is preferred as it is more tested
     """
@@ -371,6 +403,7 @@ def locations_to_gnat(locations: List[Tuple[str, Location]]):
             start.beginning_of_line(), end.end_of_line().forward_char(-1)
         )
         GPS.Locations.add("Find AST", file, start.line(), start.column(), chars)
+
 
 def select_location(filepath: str, location: Location):
     """

@@ -4,7 +4,6 @@ This module defines the Location data structure.
 from typing import Dict
 import libadalang as lal # type: ignore
 
-
 class Location:
     """
     This class stores data about pattern matches, namely where they start, where they end,

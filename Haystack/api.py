@@ -46,7 +46,8 @@ def findall_file_try_rules(
     case_insensitive: bool,
 ) -> List[Location]:
     """
-    Similar to findall_file, except now we try all parse rules until we find one that parses the search query.
+    Similar to findall_file, except now we try all parse rules until
+    we find one that parses the search query.
 
     :param search_query: The pattern to search for
     :param filepath: The filepath for the file to search in
@@ -120,7 +121,8 @@ def sub_file(
     case_insensitive: bool = False,
 ):
     """
-    Similar to re.sub; search for the search query in a file located by filepath, replace all matches with the replacement.
+    Similar to re.sub; search for the search query in a file located by filepath,
+    replace all matches with the replacement.
 
     :param search_query: The pattern to search for
     :param filepath: The filepath for the file to search in

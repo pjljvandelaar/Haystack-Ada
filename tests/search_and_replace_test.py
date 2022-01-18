@@ -4,7 +4,9 @@ Basically, rules that re-write bad code into better code.
 """
 import libadalang as lal  # type: ignore
 from Haystack import api
+
 # pylint: disable=missing-function-docstring
+
 
 def test_not_not():
     assert (
@@ -634,16 +636,19 @@ def test_extend_not_equals_to_range():
         == "A not in 1 .. 5 | 10"
     )
 
+
 def test_multiple_matches_single_line():
     assert (
         run_test(
             "Put ($S_expr)",
             lal.GrammarRule.expr_rule,
             "Put_Line ($S_expr)",
-            "Put (\"Hello\"); Put (\"World\"); Put (\"!\");",
+            'Put ("Hello"); Put ("World"); Put ("!");',
             lal.GrammarRule.stmts_rule,
-        ) == "Put_Line (\"Hello\"); Put_Line (\"World\"); Put_Line (\"!\");"
+        )
+        == 'Put_Line ("Hello"); Put_Line ("World"); Put_Line ("!");'
     )
+
 
 # def test_for_attribute_use():
 #    assert run_test(

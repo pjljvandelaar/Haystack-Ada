@@ -122,7 +122,7 @@ def _load_file(filepath: str) -> List[str]:
     Loads a file's contents into memory as a list of strings
     """
     lines: List[str]
-    with open(filepath, "r", encoding = "UTF-8") as infile:
+    with open(filepath, "r", encoding="UTF-8") as infile:
         lines = infile.readlines()
     return lines
 
@@ -131,5 +131,5 @@ def _write_file(filepath: str, lines: str):
     """
     Writes the contents of a string to a file, overwriting its original contents
     """
-    with open(filepath, "w", encoding = "UTF-8") as outfile:
+    with open(filepath, "w", encoding="UTF-8") as outfile:
         outfile.write(lines)

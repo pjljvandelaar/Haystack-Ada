@@ -2,7 +2,8 @@
 This module defines the Location data structure.
 """
 from typing import Dict
-import libadalang as lal # type: ignore
+import libadalang as lal  # type: ignore
+
 
 class Location:
     """
@@ -11,6 +12,7 @@ class Location:
     If wildcards were used, it stores what text matched to the wildcard,
     so that this can later be backreferenced in the replacement.
     """
+
     start_line: int
     end_line: int
     start_char: int

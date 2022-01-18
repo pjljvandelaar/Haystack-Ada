@@ -3,7 +3,7 @@ This module contains tests according to some general re-write rules.
 Basically, rules that re-write bad code into better code.
 """
 import libadalang as lal  # type: ignore
-import api
+from Haystack import api
 # pylint: disable=missing-function-docstring
 
 def test_not_not():
@@ -97,7 +97,7 @@ def test_not_less_equal():
     )
 
 
-def test_not_in():  # TODO check if correct example of ADA
+def test_not_in():
     assert (
         run_test(
             "not ($S_Var in $M_Values)",
@@ -635,6 +635,19 @@ def test_extend_not_equals_to_range():
     )
 
 
+from Haystack import replacer
+
+def test_multiple_matches_single_line():
+    assert (
+        run_test(
+            "Put ($S_expr)",
+            lal.GrammarRule.expr_rule,
+            "Put_Line ($S_expr)",
+            "Put (\"Hello\"); Put (\"World\"); Put (\"!\");",
+            lal.GrammarRule.stmts_rule,
+        ) == "Put_Line (\"Hello\"); Put_Line (\"World\"); Put_Line (\"!\");"
+    )
+
 # def test_for_attribute_use():
 #    assert run_test(
 #        """$S_Var:$S_Type;
@@ -653,7 +666,7 @@ def run_test(
     replace_pattern: str,
     input_string: str,
     input_parse_rule: lal.GrammarRule,
-):
+) -> str:
     """
     Wrapper around api.sub_string. It does nothing more than re-order
     the function parameters and giving them different names.

@@ -634,9 +634,6 @@ def test_extend_not_equals_to_range():
         == "A not in 1 .. 5 | 10"
     )
 
-
-from Haystack import replacer
-
 def test_multiple_matches_single_line():
     assert (
         run_test(

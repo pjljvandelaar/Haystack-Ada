@@ -1,3 +1,7 @@
+"""
+Module containing all tests that tests whether the _try_rules method
+is able to find rules to parse various forms of valid ada code.
+"""
 import libadalang as lal # type: ignore
 from Haystack import api
 # pylint: disable=missing-function-docstring
@@ -68,7 +72,8 @@ def test_abs_expr():
         lal.GrammarRule._c_to_py)[0].diagnostics
 
 def test_abstract_type():
-    assert not api._analyze_string_try_rules("function Abstract_Class_Member return Object is abstract;",
+    assert not api._analyze_string_try_rules(
+        "function Abstract_Class_Member return Object is abstract;",
         lal.GrammarRule._c_to_py)[0].diagnostics
 
 def test_accept():

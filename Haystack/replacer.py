@@ -16,7 +16,8 @@ def replace_file(
 ):
     """
     Replaces the contents of a file.
-    Only sections specified by the list of locations are overwritten and replaced by the replacement parameter.
+    Only sections specified by the list of locations are overwritten
+    and replaced by the replacement parameter.
 
     :param filename: Name of the file that contains the search result
     :type filename: str
@@ -43,7 +44,8 @@ def replace_string(
 ) -> str:
     """
     Replaces the contents of a string.
-    Only sections specified by the list of locations are overwritten and replaced by the replacement parameter.
+    Only sections specified by the list of locations are overwritten
+    and replaced by the replacement parameter.
     """
     lines = to_replace.splitlines()
     output_str = _replace(lines, locations, replacement, indexes)

@@ -309,7 +309,7 @@ class MainView(Gtk.Grid):
         for location in locations:
             self.locations.append((filepath, location))
 
-    def on_next_clicked(self, widget):
+    def on_next_clicked(self, widget): # pylint: disable=unused-argument
         """When a search query has been executed,
         selects the next matched location found."""
         if len(self.locations) > 0:
@@ -317,7 +317,7 @@ class MainView(Gtk.Grid):
             (filepath, location) = self.locations[self.selected_location]
             select_location(filepath, location)
 
-    def on_previous_clicked(self, widget):
+    def on_previous_clicked(self, widget): # pylint: disable=unused-argument
         """When a search query has been executed,
         selects the previous matched location found."""
         if len(self.locations) > 0:
@@ -343,7 +343,7 @@ class MainView(Gtk.Grid):
         self.selected_location -= 1
         self.on_find_clicked(widget)
 
-    def on_replace_all_clicked(self, widget):
+    def on_replace_all_clicked(self, widget): # pylint: disable=unused-argument
         """Replaces all found matches with the text entered into the replace textbox."""
         # Read replace buffer
         buffer = self.replace_textview.get_buffer()

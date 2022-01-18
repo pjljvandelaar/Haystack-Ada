@@ -3,8 +3,8 @@ This module contains the methods used to search for pattern matches.
 The only function used from outside this module is execute_search, which searches for one
 Ada parse tree in another.
 """
-import libadalang as lal  # type: ignore
 from typing import List, Dict
+import libadalang as lal  # type: ignore
 from Haystack.location import Location
 
 

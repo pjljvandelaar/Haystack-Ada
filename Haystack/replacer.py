@@ -73,9 +73,19 @@ def _replace(
         else:
             previous_end_line = locations[indexes_gen[i - 1]].end_line
             previous_end_char = locations[indexes_gen[i - 1]].end_char
-            parts.append([lines[previous_end_line - 1][previous_end_char - 1 :]])
+            if previous_end_line == start_line:
+                parts.append(
+                    [
+                        lines[previous_end_line - 1][
+                            previous_end_char - 1 : start_char - 1
+                        ]
+                    ]
+                )
+            else:
+                parts.append([lines[previous_end_line - 1][previous_end_char - 1 :]])
             parts[-1].extend(lines[previous_end_line : start_line - 1])
-            parts[-1].append(lines[start_line - 1][: start_char - 1])
+            if previous_end_line != start_line:
+                parts[-1].append(lines[start_line - 1][: start_char - 1])
         if i == len(indexes_gen) - 1:
             parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
@@ -110,7 +120,7 @@ def _load_file(filepath: str) -> List[str]:
     Loads a file's contents into memory as a list of strings
     """
     lines: List[str]
-    with open(filepath, "r") as infile:
+    with open(filepath, "r", encoding = "UTF-8") as infile:
         lines = infile.readlines()
     return lines
 
@@ -119,5 +129,5 @@ def _write_file(filepath: str, lines: str):
     """
     Writes the contents of a string to a file, overwriting its original contents
     """
-    with open(filepath, "w") as outfile:
+    with open(filepath, "w", encoding = "UTF-8") as outfile:
         outfile.write(lines)

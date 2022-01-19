@@ -25,8 +25,8 @@ Pytest is the module we use to test our code. To be able to execute the unit tes
 Finally, GPS.py and gs_utils.py are two modules that are imported by haystack_plugin.py. These are internal modules provided by GNATStudio which can not be imported outside of GNATStudio. Because of this, you will likely encounter some errors because python is unable to locate these modules.
 To solve this, you can source these files yourself:
 
-GPS.py can be found in <prefix>/share/gnatstudio/support/ui/GNATSTudio_doc/__init__.py. Simply move the __init__.py file to your repository and rename it to GPS.py
-gs_utils.py can be found in <prefix>/share/gnatstudio/support/core/gs_utils/__init__.py. Once again, move __init__.py to your repository and rename it to gs_utils.py
+GPS.py can be found in <prefix>/share/gnatstudio/support/ui/GNATSTudio_doc/\_\_init\_\_.py. Simply move the \_\_init\_\_.py file to your repository and rename it to GPS.py
+gs_utils.py can be found in <prefix>/share/gnatstudio/support/core/gs_utils/\_\_init\_\_.py. Once again, move \_\_init\_\_.py to your repository and rename it to gs_utils.py
 In both these cases <prefix> refers to the GNATStudio install directory.
  
 ### Submitting changes

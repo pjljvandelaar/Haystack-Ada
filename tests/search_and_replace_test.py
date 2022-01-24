@@ -324,8 +324,8 @@ def test_null_then_branch_hard():
             lal.GrammarRule.if_stmt_rule,
         )
         == """if not (A) then
-         Put ("not A");
-        end if;"""
+             Put ("not A"); 
+            end if;"""
     )
 
 
@@ -632,7 +632,7 @@ def test_list_elements_exact():
             "begin B; C; end;",
             lal.GrammarRule.block_stmt_rule,
         )
-        == "begin X; Y; end;"
+        == "begin  X; Y;  end;"
     )
 
 

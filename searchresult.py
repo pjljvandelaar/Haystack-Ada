@@ -69,8 +69,10 @@ class SearchResult:
                 and self._wild_comparison(root1, root2)
         ):
             return True
+        '''
         if len(root1.children) != len(root2.children):
             return False
+        '''
         '''
         if not _compare_children(root1, root2):
             return False
@@ -88,11 +90,60 @@ class SearchResult:
                 and not _text_comparison(root1.text, root2.text, self.case_insensitive)
         ):
             return False
-        for i in range(len(root1.children)):
-            if not self._are_identical(root1.children[i], root2.children[i]):
-                return False
-        self.last_location = root1.sloc_range
-        return True
+        if len(root1.children) == len(root2.children):  # "standard" case
+
+            for i in range(len(root1.children)):
+                if not self._are_identical(root1.children[i], root2.children[i]):
+                    return False  # handle corner case!!
+            self.last_location = root1.sloc_range
+            return True
+        else:  # number of children different, check if because of wildcards
+            filter_children = [i for i in root2.children if i is not None]
+            test = [i for i in root2.children if i is not None]
+            plural_wildcards_no = sum(_is_plural_wildcard(child.text) for child in filter_children)
+            regular_children = len(root2.children) - plural_wildcards_no
+            to_compare = [i for i in root1.children if i is not None]
+            if len(to_compare) == regular_children:
+                # possibly all $Ms match to zero nodes, let's try to ignore them
+                new_children = _strip_from_wildcards(root2)
+                for i in range(len(root1.children)):
+                    if not self._are_identical(root1.children[i], new_children[i]):
+                        return False
+                for child in list(set(root2.children) - set(new_children)):
+                    # self.wildcards[child.text] = None
+                    if not self._wild_comparison(None, child):
+                        return False
+                self.last_location = root1.sloc_range
+                return True
+            elif len(root1.children) > regular_children and plural_wildcards_no:
+                wildcard_indexes = [i for i in range(len(root2.children)) if _is_plural_wildcard(root2.children[i].text)]
+                root2_iterator = 0
+                multi_wildcard_value = []
+                for i in range(len(root1.children)):
+                    root2_iterator = min(root2_iterator, len(root2.children) - 1)
+                    if root2_iterator in wildcard_indexes:
+                        multi_wildcard_value.append(root1.children[i])
+                        root2_iterator += 1
+                    else:
+                        if root2.children and not self._are_identical(root1.children[i], root2.children[root2_iterator]):
+                            multi_wildcard_value.append(root1.children[i])
+                        else:
+                            if wildcard_indexes:
+                                last_wildcard = max([j for j in wildcard_indexes if j < i])
+                                # self.wildcards[root2.children[last_wildcard].text] = multi_wildcard_value
+                                if not self._wild_comparison_multi(multi_wildcard_value, root2.children[last_wildcard]):
+                                    return False
+                            multi_wildcard_value = []
+                            root2_iterator += 1
+                if wildcard_indexes:
+                    last_wildcard = max([j for j in wildcard_indexes if j <= i])
+                    if isinstance(self.wildcards[root2.children[last_wildcard].text], list):
+                        self.wildcards[root2.children[last_wildcard].text] = multi_wildcard_value
+                    else:
+                        return False
+                self.last_location = root1.sloc_range
+                return True
+            return False
 
     def is_subtree(self, tree: lal.AdaNode, subtree: lal.AdaNode) -> bool:
         """
@@ -122,6 +173,17 @@ class SearchResult:
                     return True
                 return False
         self.wildcards[root2.text] = root1
+        return True
+
+    def _wild_comparison_multi(self, multi: list, root2: lal.AdaNode) -> bool:
+        for key in self.wildcards.keys():
+            if _ignore_semicolon_comparison(key, root2.text):
+                if isinstance(self.wildcards[key], list) and len(self.wildcards[key]) == len(multi):
+                    if all(self._are_identical(self.wildcards[key][i], multi[i]) for i in range(len(multi))):
+                        return True
+                # print([i.text for i in multi], root2.text, self.wildcards["$M_After"])
+                return False
+        self.wildcards[root2.text] = multi
         return True
 
 
@@ -164,15 +226,14 @@ def _is_plural_wildcard(text: str) -> bool:
     return bool(re.search("^\$M_[A-Z][A-Za-z_]*[0-9]*(;)?$", text))
 
 
-'''
 def _compare_children(root1, root2) -> bool:
     all_children = len(root2.children)
     to_compare = len(root1.children)
     wildcards = sum(_is_plural_wildcard(child.text) for child in root2.children)
-    return to_compare >= (all_children - wildcards)
-'''
-'''
+    # return to_compare >= (all_children - wildcards)
+    return wildcards > 0
+
+
 def _strip_from_wildcards(root):
     new_children = [i for i in root.children if not i.text or not _is_plural_wildcard(i.text)]
     return new_children
-'''

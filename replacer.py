@@ -101,7 +101,13 @@ def _wildcard_replace(locations: List[Location], replacement: str, index: int) -
     result = replacement
     for key, value in locations[index].wildcards.items():
         if key in replacement:
-            result = result.replace(key, value.text)
+            try:
+                result = result.replace(key, value.text)
+            except AttributeError:
+                if value is None:
+                    result = result.replace(key, "")
+                else:
+                    result = result.replace(key, " ".join([i.text for i in value]))
     return result
 
 

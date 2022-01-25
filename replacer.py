@@ -18,10 +18,10 @@ def replace_file(
     Replaces the contents of a file.
     Only sections specified by the list of locations are overwritten and replaced by the replacement parameter.
 
-    :param filename: Name of the file that contains the search result
-    :type filename: str
-    :param slocs: List of locations of the search results
-    :type slocs: list
+    :param locations: List of locations of the search results
+    :type locations: list
+    :param filepath: Path of the file that contains the search result
+    :type filepath: str
     :param replacement: String that the search match is to be replaced with
     :type replacement: str
     :param indexes: Indexes corresponding to the slocs list elements that are to be replaced
@@ -73,11 +73,11 @@ def _replace(
         else:
             previous_end_line = locations[indexes_gen[i - 1]].end_line
             previous_end_char = locations[indexes_gen[i - 1]].end_char
-            parts.append([lines[previous_end_line - 1][previous_end_char - 1 :]])
-            parts[-1].extend(lines[previous_end_line : start_line - 1])
+            parts.append([lines[previous_end_line - 1][previous_end_char - 1:]])
+            parts[-1].extend(lines[previous_end_line: start_line - 1])
             parts[-1].append(lines[start_line - 1][: start_char - 1])
         if i == len(indexes_gen) - 1:
-            parts.append([lines[end_line - 1][end_char - 1 :]])
+            parts.append([lines[end_line - 1][end_char - 1:]])
             parts[-1].extend(lines[end_line:])
 
     output_str = "" if indexes_gen else "\n".join(lines)

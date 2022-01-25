@@ -6,6 +6,7 @@ import libadalang as lal  # type: ignore
 import api
 # pylint: disable=missing-function-docstring
 
+
 def test_not_not():
     assert (
         run_test(
@@ -636,6 +637,45 @@ def test_list_elements_exact():
     )
 
 
+def test_list_elements_exact_repeat_fail():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin B; C; Z; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin B; C; Z; end;"
+    )
+
+
+def test_list_elements_repeat_hard():
+    assert (
+        run_test(
+            "A; $M_Before; B; C; $M_After;",
+            lal.GrammarRule.stmts_rule,
+            "X; $M_Before; Y; Z; $M_After;",
+            "begin A; B; C; D; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin X;  Y; Z; D; end;"
+    )
+
+
+def test_list_elements_exact_repeat_success():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin B; C; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin  X; Y;  end;"
+    )
+
+
 def test_list_elements_head_tail():
     assert (
         run_test(
@@ -649,6 +689,32 @@ def test_list_elements_head_tail():
     )
 
 
+def test_list_elements_head_tail_repeat_fail():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin A; B; C; D; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A; B; C; D; end;"
+    )
+
+
+def test_list_elements_head_tail_repeat_success():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin A; B; C; A; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A; X; Y; A; end;"
+    )
+
+
 def test_list_elements_trails():
     assert (
         run_test(
@@ -659,6 +725,32 @@ def test_list_elements_trails():
             lal.GrammarRule.block_stmt_rule,
         )
         == "begin A1; A2; A3; X; Y; D1; D2; D3; end;"
+    )
+
+
+def test_list_elements_trails_repeat_fail():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin A1; A2; A3; B; C; D1; D2; D3; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A1; A2; A3; B; C; D1; D2; D3; end;"
+    )
+
+
+def test_list_elements_trails_repeat_success():
+    assert (
+        run_test(
+            "$M_Before; B; C; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin A1; A2; A3; B; C; A1; A2; A3; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A1; A2; A3; X; Y; A1; A2; A3; end;"
     )
 
 

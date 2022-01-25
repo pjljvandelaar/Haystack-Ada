@@ -89,7 +89,7 @@ def _replace(
             if previous_end_line != start_line:
                 parts[-1].append(lines[start_line - 1][: start_char - 1])
         if i == len(indexes_gen) - 1:
-            parts.append([lines[end_line - 1][end_char - 1:]])
+            parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
 
     output_str = "" if indexes_gen else "\n".join(lines)

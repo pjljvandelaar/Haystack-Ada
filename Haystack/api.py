@@ -7,9 +7,10 @@ is then passed on to the searchResult and replacer modules.
 """
 from typing import List, Tuple
 import libadalang as lal  # type: ignore
-import searchresult as sr
-import replacer as rep
-from location import Location
+from Haystack import searchresult as sr
+from Haystack import replacer as rep
+from Haystack.location import Location
+from Haystack import exceptions
 
 
 def findall_file(
@@ -28,10 +29,13 @@ def findall_file(
     :return: A list of locations where the file matches the search query
     """
     try:
-        pattern = _analyze_string(search_query, parse_rule)
         operand = _analyze_file(filepath)
     except ValueError as error:
-        raise error
+        raise exceptions.OperandParseError from error
+    try:
+        pattern = _analyze_string(search_query, parse_rule)
+    except ValueError as error:
+        raise exceptions.PatternParseException from error
     return _execute_search(pattern.root, operand.root, case_insensitive)
 
 
@@ -42,7 +46,8 @@ def findall_file_try_rules(
     case_insensitive: bool,
 ) -> List[Location]:
     """
-    Similar to findall_file, except now we try all parse rules until we find one that parses the search query.
+    Similar to findall_file, except now we try all parse rules until
+    we find one that parses the search query.
 
     :param search_query: The pattern to search for
     :param filepath: The filepath for the file to search in
@@ -98,10 +103,13 @@ def findall_string(
     :return: A list of locations where the string matches the search query
     """
     try:
-        pattern = _analyze_string(search_query, search_query_parse_rule)
         operand = _analyze_string(to_search, to_search_parse_rule)
     except ValueError as error:
-        raise error
+        raise exceptions.OperandParseError from error
+    try:
+        pattern = _analyze_string(search_query, search_query_parse_rule)
+    except ValueError as error:
+        raise exceptions.PatternParseException from error
     return _execute_search(pattern.root, operand.root, case_insensitive)
 
 
@@ -113,7 +121,8 @@ def sub_file(
     case_insensitive: bool = False,
 ):
     """
-    Similar to re.sub; search for the search query in a file located by filepath, replace all matches with the replacement.
+    Similar to re.sub; search for the search query in a file located by filepath,
+    replace all matches with the replacement.
 
     :param search_query: The pattern to search for
     :param filepath: The filepath for the file to search in
@@ -134,7 +143,7 @@ def sub_string(
     case_insensitive: bool = False,
 ) -> str:
     """
-    Similar to re.sub; search for the search query in the to_replace string, 
+    Similar to re.sub; search for the search query in the to_replace string,
     replace all matches with the replacement
 
     :param search_query: The pattern to search for

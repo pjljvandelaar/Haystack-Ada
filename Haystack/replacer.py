@@ -3,7 +3,7 @@ This module is responsible for performing the replace operations.
 The two functions called from outside this class are replace_file and replace_string,
 depending on what type of input the replacecement is performed.
 """
-from typing import List
+from typing import List, Tuple
 from Haystack.location import Location
 
 
@@ -19,16 +19,11 @@ def replace_file(
     Only sections specified by the list of locations are overwritten
     and replaced by the replacement parameter.
 
-    :param filename: Name of the file that contains the search result
-    :type filename: str
-    :param slocs: List of locations of the search results
-    :type slocs: list
-    :param replacement: String that the search match is to be replaced with
-    :type replacement: str
-    :param indexes: Indexes corresponding to the slocs list elements that are to be replaced
-    :type indexes: list, optional
-    :param output: Name of the file to which the modified code will be outputted
-    :type output: str, optional
+    :param filename: Name of the file that contains the search result.
+    :param slocs: List of locations of the search results.
+    :param replacement: String that the search match is to be replaced with.
+    :param indexes: The indexes of the locations that are to be used for replacement.
+    :param output: Name of the file to which the modified code will be outputted.
     """
     lines = _load_file(filepath)
     output_str = _replace(lines, locations, replacement, indexes)
@@ -46,6 +41,11 @@ def replace_string(
     Replaces the contents of a string.
     Only sections specified by the list of locations are overwritten
     and replaced by the replacement parameter.
+
+    :param to_replace: The string on which the replacement will be performed.
+    :param locations: The list of locations where the replacement needs to be performed.
+    :param replacement: The replacement that will be used to replace the matched locations.
+    :param indexes: The indexes of the locations that are to be used for replacement.
     """
     lines = to_replace.splitlines()
     output_str = _replace(lines, locations, replacement, indexes)
@@ -58,12 +58,52 @@ def _replace(
     replacement: str,
     indexes: List[int] = None,
 ) -> str:
-    indexes_gen: List[int] = (
-        [i for i in range(len(locations))] if indexes is None else indexes
-    )
+    """
+    Takes lines, splits them into parts according to the replacement locations,
+    generates replacements (whenever wildcards are involved), and stitches the result back together.
+
+    :param lines: The list of individual lines on which the replacement is performed.
+    :param locations: The list of locations where the replacement needs to be performed.
+    :param replacement: The replacement that will be used to replace the matched locations.
+    :param indexes: The indexes of the locations that are to be used for replacement.
+    """
+    indexes_gen: List[int] = list(range(len(locations))) if indexes is None else indexes
+    if not indexes_gen:
+        return "\n".join(lines)
+
+    parts, new_replacement = _split_input(lines, locations, replacement, indexes_gen)
+
+    output_str = ""
+    print(output_str)
+    for idx, part in enumerate(parts):
+        for line in part:
+            output_str += line
+            print(output_str)
+        if idx == len(parts) - 1:
+            break
+        if new_replacement:
+            output_str += new_replacement[idx]
+            print(output_str)
+        else:
+            output_str += replacement
+            print(output_str)
+    return output_str
+
+
+def _split_input(
+    lines: List[str], locations: List[Location], replacement: str, indexes: List[int]
+) -> Tuple[List[List[str]], List[str]]:
+    """
+    Splits the lines into parts according to the locations and generates wildcard replacements whenever needed.
+
+    :param lines: The list of individual lines on which the replacement is performed.
+    :param locations: The list of locations where the replacement needs to be performed.
+    :param replacement: The replacement that will be used to replace the matched locations.
+    :param indexes: The indexes of the locations that are to be used for replacement.
+    """
     parts: List[List[str]] = []
     new_replacement: List[str] = []
-    for i, j in enumerate(indexes_gen):
+    for i, j in enumerate(indexes):
         new_replacement.append(_wildcard_replace(locations, replacement, j))
         start_line = locations[j].start_line
         end_line = locations[j].end_line
@@ -73,8 +113,8 @@ def _replace(
             parts.append(lines[: start_line - 1])
             parts[-1].append(lines[start_line - 1][: start_char - 1])
         else:
-            previous_end_line = locations[indexes_gen[i - 1]].end_line
-            previous_end_char = locations[indexes_gen[i - 1]].end_char
+            previous_end_line = locations[indexes[i - 1]].end_line
+            previous_end_char = locations[indexes[i - 1]].end_char
             if previous_end_line == start_line:
                 parts.append(
                     [
@@ -88,22 +128,10 @@ def _replace(
             parts[-1].extend(lines[previous_end_line : start_line - 1])
             if previous_end_line != start_line:
                 parts[-1].append(lines[start_line - 1][: start_char - 1])
-        if i == len(indexes_gen) - 1:
+        if i == len(indexes) - 1:
             parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
-
-    output_str = "" if indexes_gen else "\n".join(lines)
-    for idx, part in enumerate(parts):
-        for line in part:
-            output_str += line
-        if idx == len(parts) - 1:
-            break
-        if new_replacement:
-            output_str += new_replacement[idx]
-        else:
-            output_str += replacement
-
-    return output_str
+    return parts, new_replacement
 
 
 def _wildcard_replace(locations: List[Location], replacement: str, index: int) -> str:

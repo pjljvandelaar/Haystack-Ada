@@ -73,20 +73,21 @@ def _replace(
 
     parts, new_replacement = _split_input(lines, locations, replacement, indexes_gen)
 
+    # After splitting the input into parts, we stitch it back together with the
+    # replacement in between the unaltered parts.
     output_str = ""
-    print(output_str)
     for idx, part in enumerate(parts):
         for line in part:
             output_str += line
-            print(output_str)
         if idx == len(parts) - 1:
+            # If we just added the last part, break the loop
             break
         if new_replacement:
+            # If the replacement had a wildcard, add the replacement with whatever the wildard matched.
             output_str += new_replacement[idx]
-            print(output_str)
         else:
+            # Else, add the original replacement.
             output_str += replacement
-            print(output_str)
     return output_str
 
 
@@ -94,7 +95,10 @@ def _split_input(
     lines: List[str], locations: List[Location], replacement: str, indexes: List[int]
 ) -> Tuple[List[List[str]], List[str]]:
     """
-    Splits the lines into parts according to the locations and generates wildcard replacements whenever needed.
+    Splits the lines into parts according to the locations and generates wildcard
+    replacements whenever needed.
+    The "parts" added to the list are exactly those parts that stay unedited,
+    the pieces of the string that need to be replaced are left out.
 
     :param lines: The list of individual lines on which the replacement is performed.
     :param locations: The list of locations where the replacement needs to be performed.
@@ -110,12 +114,16 @@ def _split_input(
         start_char = locations[j].start_char
         end_char = locations[j].end_char
         if i == 0:
+            # Add all characters until the first to-be-edited part.
             parts.append(lines[: start_line - 1])
             parts[-1].append(lines[start_line - 1][: start_char - 1])
         else:
             previous_end_line = locations[indexes[i - 1]].end_line
             previous_end_char = locations[indexes[i - 1]].end_char
             if previous_end_line == start_line:
+                # If the current replacement happens on the same line as the last replacement,
+                # we need to add the unmodified string between the last character of the previous
+                # modification until the first character of the current modification.
                 parts.append(
                     [
                         lines[previous_end_line - 1][
@@ -124,11 +132,17 @@ def _split_input(
                     ]
                 )
             else:
+                # Else, we simply add the rest of the previous line.
                 parts.append([lines[previous_end_line - 1][previous_end_char - 1 :]])
+            # Add the lines in between the last to-be-edited line and the current to-be-edited line.
             parts[-1].extend(lines[previous_end_line : start_line - 1])
             if previous_end_line != start_line:
+                # If we are not replacing on the same line as the previous replacement,
+                # we still need to add the characters of the current line before
+                # the specified replacement.
                 parts[-1].append(lines[start_line - 1][: start_char - 1])
         if i == len(indexes) - 1:
+            # Finally, add all lines and characters after the last edit.
             parts.append([lines[end_line - 1][end_char - 1 :]])
             parts[-1].extend(lines[end_line:])
     return parts, new_replacement

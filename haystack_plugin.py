@@ -200,6 +200,7 @@ class MainView(Gtk.Grid):
         Retrieves the entered search query and parse rule,
         then calls the search method appropriate for the selected context.
         """
+        self.locations = []
         self.set_button_sensitivity(False)
         # Read search buffer
         buffer = self.find_textview.get_buffer()
@@ -308,7 +309,6 @@ class MainView(Gtk.Grid):
                 "The file could not be parsed. Please check for any errors and fix them."
             )  # pylint: disable=line-too-long
             return
-        self.locations = []
         for location in locations:
             self.locations.append((filepath, location))
 

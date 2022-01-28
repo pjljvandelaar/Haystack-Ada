@@ -18,7 +18,7 @@ def replace_file(
     Replaces the contents of a file.
     Only sections specified by the list of locations are overwritten
     and replaced by the replacement parameter.
-    
+
     :param filepath: Path of the file that contains the search result
     :param locations: List of locations of the search results
     :param replacement: String that the search match is to be replaced with

@@ -19,10 +19,10 @@ def replace_file(
     Only sections specified by the list of locations are overwritten
     and replaced by the replacement parameter.
 
-    :param filename: Name of the file that contains the search result
-    :type filename: str
-    :param slocs: List of locations of the search results
-    :type slocs: list
+    :param locations: List of locations of the search results
+    :type locations: list
+    :param filepath: Path of the file that contains the search result
+    :type filepath: str
     :param replacement: String that the search match is to be replaced with
     :type replacement: str
     :param indexes: Indexes corresponding to the slocs list elements that are to be replaced
@@ -113,7 +113,13 @@ def _wildcard_replace(locations: List[Location], replacement: str, index: int) -
     result = replacement
     for key, value in locations[index].wildcards.items():
         if key in replacement:
-            result = result.replace(key, value.text)
+            try:
+                result = result.replace(key, value.text)
+            except AttributeError:
+                if value is None:
+                    result = result.replace(key, "")
+                else:
+                    result = result.replace(key, " ".join([i.text for i in value]))
     return result
 
 

@@ -101,7 +101,7 @@ class SearchResult:
         self, root1: lal.AdaNode, root2: lal.AdaNode, plural_wildcards_no: int
     ):
         regular_children = len(root2.children) - plural_wildcards_no
-        to_compare = [i for i in root1.children if i is not None and i.text is not ""]
+        to_compare = [i for i in root1.children if i is not None]
 
         # if there is the same number of children disregarding the wildcards,
         # we can still compare by iterating in parallel, provided we strip the wildcards first
@@ -269,14 +269,14 @@ def _is_singular_wildcard(text: str) -> bool:
     """
     Checks whether a string is a singular wildcard
     """
-    return bool(re.search("^\$S_[A-Z][A-Za-z_]*[0-9]*(;)?$", text))
+    return bool(re.search("^\$S_[A-Za-z_]+[0-9]*(;)?$", text))
 
 
 def _is_plural_wildcard(text: str) -> bool:
     """
     Checks whether a string is a plural wildcard
     """
-    return bool(re.search("^\$M_[A-Z][A-Za-z_]*[0-9]*(;)?$", text))
+    return bool(re.search("^\$M_[A-Za-z_]+[0-9]*(;)?$", text))
 
 
 def _strip_from_wildcards(root):

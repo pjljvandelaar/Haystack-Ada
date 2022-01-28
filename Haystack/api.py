@@ -258,7 +258,7 @@ def _analyze_string_try_rules(
         try:
             unit = _analyze_string(string, rule)
             print("Succeeded with", rule)
-            return (unit, tried_rules)
+            return unit, tried_rules
         except ValueError:
             pass
     raise ValueError

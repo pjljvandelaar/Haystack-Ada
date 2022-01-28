@@ -17,7 +17,7 @@ class Location:
     end_line: int
     start_char: int
     end_char: int
-    wildcards: Dict[str, lal.Identifier]
+    wildcards: Dict[str, lal.AdaNode]
 
     def __init__(
         self,
@@ -25,7 +25,7 @@ class Location:
         end_line: int,
         start_char: int,
         end_char: int,
-        wildcards: Dict[str, lal.Identifier],
+        wildcards: Dict[str, lal.AdaNode],
     ):
         self.start_line = start_line
         self.end_line = end_line

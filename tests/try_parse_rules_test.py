@@ -2,6 +2,7 @@
 Module containing all tests that tests whether the _try_rules method
 is able to find rules to parse various forms of valid ada code.
 """
+from pickle import FALSE
 import libadalang as lal  # type: ignore
 from Haystack import api
 
@@ -135,3 +136,16 @@ def test_all_assignment():
     assert not api._analyze_string_try_rules(
         "Obj1.all := Obj2.all;", lal.GrammarRule._c_to_py
     )[0].diagnostics
+
+
+def test_findall_file_try_rules():
+    loc = api.findall_file_try_rules(
+        'Put("[")', "tests/test_programs/dosort.adb", lal.GrammarRule._c_to_py, False
+    )[0]
+
+    assert (
+        loc.start_line == 31
+        and loc.start_char == 7
+        and loc.end_line == 31
+        and loc.end_char == 15
+    )

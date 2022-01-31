@@ -2,7 +2,6 @@
 Module containing all tests that tests whether the _try_rules method
 is able to find rules to parse various forms of valid ada code.
 """
-from pickle import FALSE
 import libadalang as lal  # type: ignore
 from Haystack import api
 

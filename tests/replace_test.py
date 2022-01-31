@@ -11,7 +11,7 @@ which would increase the execution time)
 # pylint: disable=C0103
 # pylint: disable=missing-function-docstring
 # pylint: disable=protected-access
-import libadalang as lal
+import libadalang as lal # type: ignore
 from Haystack import api
 from Haystack import replacer as rep
 

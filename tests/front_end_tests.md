@@ -9,7 +9,7 @@
 8. If GNAT Studio is still opened, click File/Project/Reload Project.
 9. Now the source files you just added should be visible under src in GNAT Studio.
 10. When you click "Find/Find AST", you should see the following window:
-
+![Haystack-Plugin](https://user-images.githubusercontent.com/16014794/151826460-6c6195c9-08a8-4454-974c-7a926953efe6.png)
 Only the "Find" and "Find All" buttons on the bottom right should be clickable, the others will enable after finding some matches
 
 ### Find functionality

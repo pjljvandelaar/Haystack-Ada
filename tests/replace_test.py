@@ -11,7 +11,7 @@ which would increase the execution time)
 # pylint: disable=C0103
 # pylint: disable=missing-function-docstring
 # pylint: disable=protected-access
-import libadalang as lal # type: ignore
+import libadalang as lal  # type: ignore
 from Haystack import api
 from Haystack import replacer as rep
 
@@ -34,7 +34,7 @@ begin
     end if;
 end Main;
 """
-wildcard_file = '''
+wildcard_file = """
 -- comment
 procedure Main1 is
    X : Integer;
@@ -56,8 +56,8 @@ procedure Main2 is
    Y : Float;
 begin
 end Main;
-'''
-dosort_file = '''
+"""
+dosort_file = """
 --
 -- One of the classic examples of the use of procedural parameters is
 -- a generalized sort.  Many languages support procedural parameters, excepting
@@ -256,7 +256,7 @@ begin
    Print(Pts);
    New_Line;
 end DoSort;
-'''
+"""
 
 
 def test_simple_wildcard():
@@ -265,34 +265,41 @@ def test_simple_wildcard():
     replacement = "$S_var : String;"
     result = "The_Time : String;"
     location = api.findall_string(search_fragment, hello_file, grammar, grammar, False)
-    assert(
-       rep._wildcard_replace(location, replacement, 0) == result
-    )
+    assert rep._wildcard_replace(location, replacement, 0) == result
 
 
 def test_any_type_wildcards1():
     search_fragment = "$S_var1 : $S_type1;\n$S_var2 : $S_type2;"
     grammar = lal.GrammarRule.recov_decl_part_rule
     replacement = "$S_var1 : Float;"
-    location = api.findall_string(search_fragment, wildcard_file, grammar, grammar, False)
-    repi = ""
-    result = "X : Float;"+'\n'+"X : Float;"+'\n'+"X : Float;"+'\n'+"X : Float;"+'\n'
-    for i in range(0, len(location)):
-        repi += rep._wildcard_replace(location, replacement, i) + '\n'
-    assert(
-        repi == result
+    location = api.findall_string(
+        search_fragment, wildcard_file, grammar, grammar, False
     )
+    repi = ""
+    result = (
+        "X : Float;"
+        + "\n"
+        + "X : Float;"
+        + "\n"
+        + "X : Float;"
+        + "\n"
+        + "X : Float;"
+        + "\n"
+    )
+    for i in range(0, len(location)):
+        repi += rep._wildcard_replace(location, replacement, i) + "\n"
+    assert repi == result
 
 
 def test_any_type_wildcards2():
     search_fragment = "$S_var1 : $S_type1;\n$S_var2 : $S_type2;"
     grammar = lal.GrammarRule.recov_decl_part_rule
     replacement = "$S_var2 : Float;"
-    location = api.findall_string(search_fragment, wildcard_file, grammar, grammar, False)
-    result = "X : Float;"
-    assert(
-       rep._wildcard_replace(location, replacement, 0) == result
+    location = api.findall_string(
+        search_fragment, wildcard_file, grammar, grammar, False
     )
+    result = "X : Float;"
+    assert rep._wildcard_replace(location, replacement, 0) == result
 
 
 def test_same_var_wildcards():
@@ -300,17 +307,17 @@ def test_same_var_wildcards():
     grammar = lal.GrammarRule.recov_decl_part_rule
     replacement = "$S_var : Float;"
     result = "X : Float;"
-    location = api.findall_string(search_fragment, wildcard_file, grammar, grammar, False)
-    assert(
-       rep._wildcard_replace(location, replacement, 0) == result
+    location = api.findall_string(
+        search_fragment, wildcard_file, grammar, grammar, False
     )
+    assert rep._wildcard_replace(location, replacement, 0) == result
 
 
 def test_simple_body():
-    search_fragment = "Put(\"[\");"
+    search_fragment = 'Put("[");'
     grammar = lal.GrammarRule.stmt_rule
-    replacement = "Put(\"{\");"
-    location = api.findall_file(search_fragment, "./tests/test_programs/dosort.adb", grammar, False)
-    assert(
-        replacement in rep.replace_string(dosort_file, location, replacement, None)
+    replacement = 'Put("{");'
+    location = api.findall_file(
+        search_fragment, "./tests/test_programs/dosort.adb", grammar, False
     )
+    assert replacement in rep.replace_string(dosort_file, location, replacement, None)

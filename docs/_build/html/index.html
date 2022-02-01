@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Welcome to Haystack’s documentation! &#8212; Haystack  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-Haystack.searchresult">
+<span id="welcome-to-haystack-s-documentation"></span><h1>Welcome to Haystack’s documentation!<a class="headerlink" href="#module-Haystack.searchresult" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the methods used to search for pattern matches.
+The only function used from outside this module is execute_search, which searches for one
+Ada parse tree in another.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="Haystack.searchresult.SearchResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Haystack.searchresult.</span></span><span class="sig-name descname"><span class="pre">SearchResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Haystack.searchresult.SearchResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class used for searching a text in a file and storing its location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>case_insensitive</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag conveying whether the search should be case insensitive</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="Haystack.searchresult.SearchResult.is_subtree">
+<span class="sig-name descname"><span class="pre">is_subtree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.AdaNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.AdaNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#Haystack.searchresult.SearchResult.is_subtree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether one tree is a subtree of another tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree</strong> – The tree to be searched</p></li>
+<li><p><strong>subtree</strong> – The tree to be searched for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if subtree exists in the tree</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.searchresult.execute_search">
+<span class="sig-prename descclassname"><span class="pre">Haystack.searchresult.</span></span><span class="sig-name descname"><span class="pre">execute_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.AdaNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.AdaNode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#Haystack.searchresult.execute_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a search operation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> – The parse tree to search for</p></li>
+<li><p><strong>operand</strong> – The parse tree to search in</p></li>
+<li><p><strong>case_insensitive</strong> – Whether to enable case insensitive searching</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-Haystack.replacer"></span><p>This module is responsible for performing the replace operations.
+The two functions called from outside this class are replace_file and replace_string,
+depending on what type of input the replacecement is performed.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.replacer.replace_file">
+<span class="sig-prename descclassname"><span class="pre">Haystack.replacer.</span></span><span class="sig-name descname"><span class="pre">replace_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Haystack.replacer.replace_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces the contents of a file.
+Only sections specified by the list of locations are overwritten
+and replaced by the replacement parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> – Path of the file that contains the search result</p></li>
+<li><p><strong>locations</strong> – List of locations of the search results</p></li>
+<li><p><strong>replacement</strong> – String that the search match is to be replaced with</p></li>
+<li><p><strong>indexes</strong> – Indexes corresponding to the slocs list elements that are to be replaced</p></li>
+<li><p><strong>output</strong> – Name of the file to which the modified code will be outputted</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.replacer.replace_string">
+<span class="sig-prename descclassname"><span class="pre">Haystack.replacer.</span></span><span class="sig-name descname"><span class="pre">replace_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_replace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#Haystack.replacer.replace_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces the contents of a string.
+Only sections specified by the list of locations are overwritten
+and replaced by the replacement parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_replace</strong> – The string on which the replacement will be performed.</p></li>
+<li><p><strong>locations</strong> – The list of locations where the replacement needs to be performed.</p></li>
+<li><p><strong>replacement</strong> – The replacement that will be used to replace the matched locations.</p></li>
+<li><p><strong>indexes</strong> – The indexes of the locations that are to be used for replacement.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-Haystack.api"></span><p>This is the api layer of Haystack.
+The GUI calls this layer whenever any actions need to be performed.
+All the data is passed from the GUI to the functions in this layer.
+Any necessary transformations to the data are made here and the data
+is then passed on to the searchResult and replacer modules.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.findall_file">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">findall_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.GrammarRule</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'compilation_rule'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#Haystack.api.findall_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to re.findall; return all matches of search_query in a file at location filepath.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>search_query</strong> – The pattern to search for</p></li>
+<li><p><strong>filepath</strong> – The filepath for the file to search in</p></li>
+<li><p><strong>parse_rule</strong> – The parse rule used to parse the search query</p></li>
+<li><p><strong>case_insensitive</strong> – Boolean, enables case insensitive searching</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of locations where the file matches the search query</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.findall_file_try_rules">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">findall_file_try_rules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_rules_to_try</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">libadalang.GrammarRule</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#Haystack.api.findall_file_try_rules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to findall_file, except now we try all parse rules until
+we find one that parses the search query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>search_query</strong> – The pattern to search for</p></li>
+<li><p><strong>filepath</strong> – The filepath for the file to search in</p></li>
+<li><p><strong>parse_rules_to_try</strong> – The list of parse rules that the algorithm should try</p></li>
+<li><p><strong>case_insensitive</strong> – Boolean, enables case insensitive searching</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of locations where the file matches the search query</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.findall_string">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">findall_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_search</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_query_parse_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.GrammarRule</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'compilation_rule'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_search_parse_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.GrammarRule</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'compilation_rule'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#Haystack.api.findall_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to re.findall; return all matches of seach_query in the string to_search.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>search_query</strong> – The pattern to search for</p></li>
+<li><p><strong>to_search</strong> – The string on which the search operation is performed</p></li>
+<li><p><strong>search_query_parse_rule</strong> – The parse rule used to parse the search query</p></li>
+<li><p><strong>to_search_parse_rule</strong> – The parse rule used to parse the string on which
+the search operation is performed</p></li>
+<li><p><strong>case_insensitive</strong> – Boolean, enables case insensitive searching</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of locations where the string matches the search query</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.replace_file">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">replace_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Haystack.api.replace_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Api wrapper around replacer.replace_file()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> – The the filepath for the file to replace in</p></li>
+<li><p><strong>locations</strong> – The locations in the string to replace</p></li>
+<li><p><strong>replacement</strong> – The string to replace the specified locations with</p></li>
+<li><p><strong>indexes</strong> – The locations targeted for the replace operations, only replace the locations
+as specified by the indexes inclued in the indexes list.
+Replace all locations if indexes is None</p></li>
+<li><p><strong>output</strong> – The filepath for the file to write the output to.
+If None, write to the same file as filepath</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.replace_string">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">replace_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_replace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#Haystack.location.Location" title="Haystack.location.Location"><span class="pre">Haystack.location.Location</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#Haystack.api.replace_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Api wrapper around replacer.replace_string()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_replace</strong> – The string to perform a replace operation on</p></li>
+<li><p><strong>locations</strong> – The locations in the string to replace</p></li>
+<li><p><strong>replacement</strong> – The string to replace the specified locations with</p></li>
+<li><p><strong>indexes</strong> – The locations targeted for the replace operations,
+only replace the locations as specified by the
+indexes inclued in the indexes list.
+Replace all locations if indexes is None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting string after replacing the specified locations with the replacement</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.sub_file">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">sub_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.GrammarRule</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'compilation_rule'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Haystack.api.sub_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to re.sub; search for the search query in a file located by filepath,
+replace all matches with the replacement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>search_query</strong> – The pattern to search for</p></li>
+<li><p><strong>filepath</strong> – The filepath for the file to search in</p></li>
+<li><p><strong>replacement</strong> – The string to replace the matched text with</p></li>
+<li><p><strong>parse_rule</strong> – The parse rule used to parse the search query</p></li>
+<li><p><strong>case_insensitive</strong> – Boolean, enables case insensitive searching</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Haystack.api.sub_string">
+<span class="sig-prename descclassname"><span class="pre">Haystack.api.</span></span><span class="sig-name descname"><span class="pre">sub_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_replace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_query_parse_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.GrammarRule</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'compilation_rule'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_replace_parse_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">libadalang.GrammarRule</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'compilation_rule'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_insensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#Haystack.api.sub_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to re.sub; search for the search query in the to_replace string,
+replace all matches with the replacement</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>search_query</strong> – The pattern to search for</p></li>
+<li><p><strong>to_replace</strong> – The string on which the sub operation is performed</p></li>
+<li><p><strong>replacement</strong> – The string to replace the matched text with</p></li>
+<li><p><strong>search_query_parse_rule</strong> – The parse rule used to parse the search query</p></li>
+<li><p><strong>to_replace_parse_rule</strong> – The parse rule used to parse the string on which the
+sub operation is performed</p></li>
+<li><p><strong>case_insensitive</strong> – Boolean, enables case insensitive searching</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting string after substituting the found matches with the replacement</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-Haystack.exceptions"></span><p>Module defining some useful custom exceptions.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="Haystack.exceptions.OperandParseError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Haystack.exceptions.</span></span><span class="sig-name descname"><span class="pre">OperandParseError</span></span><a class="headerlink" href="#Haystack.exceptions.OperandParseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised when an operand (string or file) could not be parsed to an AST</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Haystack.exceptions.PatternParseException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Haystack.exceptions.</span></span><span class="sig-name descname"><span class="pre">PatternParseException</span></span><a class="headerlink" href="#Haystack.exceptions.PatternParseException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised when a search pattern could not be parsed to an AST</p>
+</dd></dl>
+
+<span class="target" id="module-Haystack.location"></span><p>This module defines the Location data structure.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="Haystack.location.Location">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Haystack.location.</span></span><span class="sig-name descname"><span class="pre">Location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_char</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_char</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wildcards</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">libadalang.AdaNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Haystack.location.Location" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class stores data about pattern matches, namely where they start, where they end,
+and if any wildcards were used in the match.
+If wildcards were used, it stores what text matched to the wildcard,
+so that this can later be backreferenced in the replacement.</p>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Haystack</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Simone Cella, Konrad Socha, Max Hendriks.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

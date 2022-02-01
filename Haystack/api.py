@@ -31,7 +31,7 @@ def findall_file(
     try:
         operand = _analyze_file(filepath)
     except ValueError as error:
-        raise exceptions.OperandParseError from error
+        raise exceptions.OperandParseException from error
     try:
         pattern = _analyze_string(search_query, parse_rule)
     except ValueError as error:
@@ -105,7 +105,7 @@ def findall_string(
     try:
         operand = _analyze_string(to_search, to_search_parse_rule)
     except ValueError as error:
-        raise exceptions.OperandParseError from error
+        raise exceptions.OperandParseException from error
     try:
         pattern = _analyze_string(search_query, search_query_parse_rule)
     except ValueError as error:

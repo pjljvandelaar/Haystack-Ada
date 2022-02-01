@@ -2,6 +2,7 @@
 This module contains tests according to some general re-write rules.
 Basically, rules that re-write bad code into better code.
 """
+import os
 import libadalang as lal  # type: ignore
 from Haystack import api
 
@@ -781,16 +782,31 @@ def test_multiple_matches_single_line():
     )
 
 
-# def test_for_attribute_use():
-#    assert run_test(
-#        """$S_Var:$S_Type;
-#        for $S_Var'$S_Attribute use $S_Expr;""", lal.GrammarRule.basic_decls_rule,
-#        """$S_Var:$S_Type
-#         with $S_Attribute => $S_Expr;""",
-#        """A:Integer;
-#        for A'1 .. 5 use 2*A;""", lal.GrammarRule.basic_decls_rule) == \
-#        """A:Integer
-#         with 1 .. 5 => 2*A;"""
+def test_file_substitution():
+    filepath = "temp.adb"
+    with open(filepath, "w", encoding="utf-8") as file:
+        file.write(
+            """with Text_IO; use Text_IO;
+procedure hello is
+begin
+    Put ("Hello world!");
+end hello;"""
+        )
+    api.sub_file(
+        "Put ($S_expr)", filepath, "Put_Line ($S_expr)", lal.GrammarRule.expr_rule
+    )
+    with open(filepath, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+    res = "".join(lines)
+    assert (
+        res
+        == """with Text_IO; use Text_IO;
+procedure hello is
+begin
+    Put_Line ("Hello world!");
+end hello;"""
+    )
+    os.remove(filepath)
 
 
 def run_test(

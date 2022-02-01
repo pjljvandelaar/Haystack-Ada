@@ -304,10 +304,10 @@ class MainView(Gtk.Grid):
                 )
             else:
                 return
-        except exceptions.OperandParseError:
+        except exceptions.OperandParseException:
             GPS.MDI.dialog(
                 "The file could not be parsed. Please check for any errors and fix them."
-            )  # pylint: disable=line-too-long
+            )
             return
         for location in locations:
             self.locations.append((filepath, location))

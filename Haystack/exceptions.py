@@ -1,7 +1,7 @@
 """Module defining some useful custom exceptions."""
 
 
-class OperandParseError(Exception):
+class OperandParseException(Exception):
     """Exception raised when an operand (string or file) could not be parsed to an AST"""
 
 

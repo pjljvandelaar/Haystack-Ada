@@ -161,8 +161,8 @@ class MainView(Gtk.Grid):
         previous_button = Gtk.Button(label="Previous")
         previous_button.connect("clicked", self.on_previous_clicked)
 
-        replace_next_button = Gtk.Button(label="Replace next")
-        replace_next_button.connect("clicked", self.on_replace_next_clicked)
+        replace_find_button = Gtk.Button(label="Replace & Find")
+        replace_find_button.connect("clicked", self.on_replace_find_clicked)
 
         replace_button = Gtk.Button(label="Replace All")
         replace_button.connect("clicked", self.on_replace_all_clicked)
@@ -170,7 +170,7 @@ class MainView(Gtk.Grid):
         self.contextual_buttons = [
             next_button,
             previous_button,
-            replace_next_button,
+            replace_find_button,
             replace_button,
         ]
         self.set_button_sensitivity(False)
@@ -179,7 +179,7 @@ class MainView(Gtk.Grid):
 
         button_box.pack_start(self.case_insensitive_button, False, False, 0)
         button_box.pack_end(replace_button, False, False, 0)
-        button_box.pack_end(replace_next_button, False, False, 0)
+        button_box.pack_end(replace_find_button, False, False, 0)
         button_box.pack_end(previous_button, False, False, 0)
         button_box.pack_end(next_button, False, False, 0)
         button_box.pack_end(find_all_button, False, False, 0)
@@ -328,7 +328,7 @@ class MainView(Gtk.Grid):
             (filepath, location) = self.locations[self.selected_location]
             select_location(filepath, location)
 
-    def on_replace_next_clicked(self, widget):
+    def on_replace_find_clicked(self, widget):
         """When a search query has been executed, replaces the currently selected location
         and then selects the next matched location in the current file."""
         # Read replace buffer

@@ -279,7 +279,7 @@ def _is_plural_wildcard(text: str) -> bool:
     return bool(re.search("^\$M_[A-Za-z_]+[0-9]*(;)?$", text))
 
 
-def _strip_from_wildcards(root):
+def _strip_from_wildcards(root: lal.AdaNode) -> lal.AdaNode:
     new_children = [
         i for i in root.children if not i.text or not _is_plural_wildcard(i.text)
     ]

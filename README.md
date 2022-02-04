@@ -19,24 +19,15 @@ Simply write the wildcard identically to how it was written in the search patter
 ## Example
 Say you have the following code fragment:
 ```Ada
-if A = B then
- Put_Line ("A equals B");
-else
+if A /= B then
  Put_Line ("A does not equal B");
  A := B;
+else
+ Put_Line ("A equals B");
 end if;
 ```
 
 If you decide you want to flip the if statement, you could write the following search query to match the code fragment:
-```Ada
-if $S_A = $S_B then
- $M_stmts_true;
-else
- $M_stmts_false;
-end if;
-```
-
-and the following replace statement:
 ```Ada
 if $S_A /= $S_B then
  $M_stmts_false;
@@ -45,13 +36,22 @@ else
 end if;
 ```
 
+and the following replace statement:
+```Ada
+if $S_A = $S_B then
+ $M_stmts_true;
+else
+ $M_stmts_false;
+end if;
+```
+
 Then the result would look like:
 ```Ada
-if A /= B then
+if A = B then
+ Put_Line ("A equals B");
+else
  Put_Line ("A does not equal B");
  A := B;
-else
- Put_Line ("A equals B");
 end if;
 ```
 
@@ -93,7 +93,7 @@ $ gnatstudio --load=python:path/to/haystack_plugin.py
 ```
 
 ## Usage:
-![Haystack-Plugin](https://user-images.githubusercontent.com/16014794/149525260-b8207da0-419d-4f9a-a2b9-dd56d33cf0cb.PNG)
+![Capture](https://user-images.githubusercontent.com/16014794/152534370-9b9a344e-8286-464b-8405-1b63598d218f.PNG)
 
 Once the haystack back-end and plug-in are installed, it can be found in GNAT Studio under the dropdown menu "Find/Find AST"
 
@@ -108,11 +108,14 @@ The other things included in the window are as follows:
 
 Finally the buttons:
  - Find: Pressing this button will prompt Haystack to search the selected context for any matches to the search pattern.
- - Find all: Same as Find, only now Haystack will add all found matches to GNAT Studio's Locations view
+ - Find All: Same as Find, only now Haystack will add all found matches to GNAT Studio's Locations view
  - Next: Once matches have been found, this button will select the next match found.
  - Previous: Once matches have been found, this button will select the previous match found.
  - Replace Next: Once matches have been found, this button will apply the replacement to the currently selected match and then select the next match.
  - Replace All: Once matches have been found, this button will apply the replacement to all found matches.
+
+## History
+Haystack-Ada was initially developed by a team of students from the University of Twente as a response to an assignment posted by [ESI](https://esi.nl/) and [ITEC](https://itecequipment.com/), an independent subsidiary of [Nexperia](https://nexperia.com/).
 
 ## Related technologies
 * [Renaissance-Ada](https://github.com/TNO/Renaissance-Ada) is [ESI](https://esi.nl)'s Renaissance approach to legacy [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) software. Haystack-Ada uses a (partial) re-implementation of the rejuvenation library in Python

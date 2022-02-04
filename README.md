@@ -93,7 +93,7 @@ $ gnatstudio --load=python:path/to/haystack_plugin.py
 ```
 
 ## Usage:
-![Capture](https://user-images.githubusercontent.com/16014794/152534370-9b9a344e-8286-464b-8405-1b63598d218f.PNG)
+![Capture](https://user-images.githubusercontent.com/16014794/152535360-141e82ce-4a6c-46a3-8a5d-e538c5ddd563.PNG)
 
 Once the haystack back-end and plug-in are installed, it can be found in GNAT Studio under the dropdown menu "Find/Find AST"
 

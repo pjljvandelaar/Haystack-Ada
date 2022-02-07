@@ -756,6 +756,112 @@ def test_list_elements_trails_repeat_success():
     )
 
 
+def test_list_elements_anti_greedy1():
+    assert (
+        run_test(
+            "$M_Before; $M_Before;",
+            lal.GrammarRule.block_stmt_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin A1; A1; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A1; X; Y; A1; end;"
+    )
+
+
+def test_list_elements_anti_greedy2():
+    assert (
+        run_test(
+            "$M_Before; $M_Before;",
+            lal.GrammarRule.stmts_rule,
+            "$M_Before; X; Y; $M_Before;",
+            "begin A1; A2; A1; A2; end;",
+            lal.GrammarRule.block_stmt_rule,
+        )
+        == "begin A1; A2; X; Y; A1; A2; end;"
+    )
+
+
+def test_extract_statement1():
+    assert (
+        run_test(
+            """if $S_Cond then
+             $S_Stmt;
+             $M_Stmts_True;
+            else
+             $S_Stmt;
+             $M_Stmts_False;
+            end if;""",
+            lal.GrammarRule.if_stmt_rule,
+            """
+            $S_Stmt;
+            if $S_Cond then
+             $M_Stmts_True;
+            else
+             $M_Stmts_False;
+            end if;""",
+            """if A then
+             Put ("X");
+             Put ("1");
+             Put ("2");
+            else
+             Put ("X");
+             Put ("3");
+             Put ("4");
+            end if;""",
+            lal.GrammarRule.if_stmt_rule,
+        )
+        == """Put ("X");
+            if A then
+             Put ("1");
+             Put ("2");
+            else
+             Put ("3");
+             Put ("4");
+            end if;"""
+    )
+
+
+def test_extract_statement2():
+    assert (
+        run_test(
+            """if $S_Cond then
+             $M_Stmts_True;
+             $S_Stmt;
+            else
+             $M_Stmts_False;
+             $S_Stmt;
+            end if;""",
+            lal.GrammarRule.if_stmt_rule,
+            """
+            if $S_Cond then
+             $M_Stmts_True;
+            else
+             $M_Stmts_False;
+            end if;
+            $S_Stmt;""",
+            """if A then
+             Put ("1");
+             Put ("2");
+             Put ("X");
+            else
+             Put ("3");
+             Put ("4");
+             Put ("X");
+            end if;""",
+            lal.GrammarRule.if_stmt_rule,
+        )
+        == """if A then
+             Put ("1");
+             Put ("2");
+            else
+             Put ("3");
+             Put ("4");
+            end if;
+            Put ("X");"""
+    )
+
+
 def test_assignment():
     assert (
         run_test(

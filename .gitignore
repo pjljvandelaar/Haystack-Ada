@@ -134,6 +134,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+#IDE
+.idea/
+
 # GPS files
 GPS.py
 gs_utils.py

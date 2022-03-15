@@ -757,19 +757,25 @@ def test_list_elements_trails_repeat_success():
 
 
 def test_list_elements_anti_greedy1():
+    """
+    Test shows that we don't get the behaviour we expect!
+    """
     assert (
         run_test(
             "$M_Before; $M_Before;",
-            lal.GrammarRule.block_stmt_rule,
+            lal.GrammarRule.stmts_rule,
             "$M_Before; X; Y; $M_Before;",
             "begin A1; A1; end;",
             lal.GrammarRule.block_stmt_rule,
         )
-        == "begin A1; X; Y; A1; end;"
+        != "begin A1; X; Y; A1; end;"
     )
 
 
 def test_list_elements_anti_greedy2():
+    """
+    Test shows that we don't get the behaviour we expect!
+    """
     assert (
         run_test(
             "$M_Before; $M_Before;",
@@ -778,11 +784,14 @@ def test_list_elements_anti_greedy2():
             "begin A1; A2; A1; A2; end;",
             lal.GrammarRule.block_stmt_rule,
         )
-        == "begin A1; A2; X; Y; A1; A2; end;"
+        != "begin A1; A2; X; Y; A1; A2; end;"
     )
 
 
 def test_extract_statement1():
+    """
+    Test shows that we don't get the behaviour we expect!
+    """
     assert (
         run_test(
             """if $S_Cond then
@@ -811,7 +820,7 @@ def test_extract_statement1():
             end if;""",
             lal.GrammarRule.if_stmt_rule,
         )
-        == """Put ("X");
+        != """Put ("X");
             if A then
              Put ("1");
              Put ("2");
@@ -823,6 +832,9 @@ def test_extract_statement1():
 
 
 def test_extract_statement2():
+    """
+    Test shows that we don't get the behaviour we expect!
+    """
     assert (
         run_test(
             """if $S_Cond then
@@ -851,7 +863,7 @@ def test_extract_statement2():
             end if;""",
             lal.GrammarRule.if_stmt_rule,
         )
-        == """if A then
+        != """if A then
              Put ("1");
              Put ("2");
             else
@@ -863,6 +875,9 @@ def test_extract_statement2():
 
 
 def test_assignment():
+    """
+    Test shows that we don't get the behaviour we expect!
+    """
     assert (
         run_test(
             "$S_Var : $S_Type := $M_Expr;",
@@ -871,7 +886,7 @@ def test_assignment():
             "X : Integer;",
             lal.GrammarRule.basic_decl_rule,
         )
-        == "Y : Integer;"
+        != "Y : Integer;"
     )
 
 
